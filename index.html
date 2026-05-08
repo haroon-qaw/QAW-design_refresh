@@ -1518,7 +1518,7 @@
       leftPanel.classList.remove('closed');
       leftPanelContent.style.width = maxWidth + 'px';
       leftPanel.style.width = (48 + maxWidth) + 'px';
-      updateSidebarVar();
+      document.documentElement.style.setProperty('--sidebar-width', (48 + maxWidth) + 'px');
     }, 2000);
 
     // 6. Final AI message + keep wolf visible

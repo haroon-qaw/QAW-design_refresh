@@ -1,0 +1,1906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QA Wolf — Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter Tight", system-ui, sans-serif;
+      font-synthesis: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: #fff;
+      color: #000;
+    }
+
+    /* ── Layout ── */
+    html, body { height: 100%; }
+    .app {
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+
+    /* ── Top nav ── */
+    .nav {
+      width: 100%;
+      height: 41px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      border-bottom: 1px solid #D4DDF7;
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px;
+    }
+
+    .nav-logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .nav-brand-name {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-brand-name span {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 18px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      color: #000;
+      border-radius: 4px;
+    }
+
+    .nav-link span {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 16px;
+    }
+
+    .nav-link.active {
+      background: #EBEEF7;
+      color: #3B3BEF;
+    }
+
+    .nav-link.active svg { stroke: #3B3BEF; }
+
+    .nav-link:not(.active) span { text-decoration: line-through; }
+
+    .avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      background: #8AFFF0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── Below-nav row ── */
+    .body-row {
+      display: flex;
+    }
+
+    /* ── Left panel ── */
+    .left-panel {
+      width: 448px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 41px;
+      height: calc(100vh - 41px);
+      display: flex;
+      overflow: hidden;
+    }
+
+    .recent-bar {
+      width: 48px;
+      flex-shrink: 0;
+      border-right: 1px solid #D4DDF7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+    }
+    .recent-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .recent-btn.active { background: #EBEEF7; }
+    .recent-btn.active svg { stroke: #3B3BEF; }
+    .recent-btn:not(.active):hover { background: #f4f8ff; }
+
+    .left-panel { transition: width 0.2s ease; overflow: hidden; }
+    .left-panel.closed { width: 48px; }
+    .left-panel.closed .left-panel-content { opacity: 0; pointer-events: none; }
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 6px;
+      cursor: col-resize;
+      z-index: 5;
+    }
+    .left-panel.closed::after { display: none; }
+    .left-panel-content { transition: opacity 0.15s ease; }
+
+    .left-panel-content {
+      width: 400px;
+      flex-shrink: 0;
+      border-right: 1px solid #D4DDF7;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 16px;
+      overflow: hidden;
+      transition: opacity 0.15s ease;
+    }
+
+    .chat-scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 0;
+      padding-bottom: 16px;
+      scrollbar-width: none;
+    }
+    .chat-scroll-area::-webkit-scrollbar { display: none; }
+
+    .left-panel-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .left-chat-text {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 18px;
+      color: #000;
+    }
+
+    .left-panel-inner { gap: 16px; transition: opacity 0.3s ease; }
+    .left-panel-inner.fading { opacity: 0; pointer-events: none; }
+    .left-panel-inner.faded { opacity: 0; pointer-events: none; height: 0; overflow: hidden; margin: 0; padding: 0; }
+
+    .left-env-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-self: stretch;
+      background: none;
+      border-radius: 4px;
+      padding: 8px;
+      border: 1px solid #FFB8F5;
+    }
+
+    .left-env-label {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 18px;
+      color: #000;
+      align-self: stretch;
+    }
+
+    .left-env-badges {
+      display: flex;
+      gap: 8px;
+    }
+
+    .left-env-desc {
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 16px;
+      color: #000;
+      align-self: stretch;
+    }
+
+    .left-divider {
+      height: 1px;
+      background: #D4DDF7;
+      align-self: stretch;
+    }
+
+    .left-help-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-self: stretch;
+    }
+
+    .left-chips {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid #D4DDF7;
+      border-radius: 4px;
+      color: #000;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 18px;
+      padding: 4px 8px;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .chip:hover { background: #f4f8ff; }
+
+    .left-input-wrap {
+      position: relative;
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .input-resize-handle {
+      height: 8px;
+      width: 100%;
+      cursor: ns-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .input-resize-indicator {
+      width: 32px;
+      height: 3px;
+      border-radius: 99px;
+      background: transparent;
+      transition: background 0.15s ease;
+    }
+    .input-resize-handle:hover .input-resize-indicator,
+    .input-resize-handle.dragging .input-resize-indicator {
+      background: #3b3bef;
+    }
+    .left-input {
+      width: 100%;
+      height: 120px;
+      background: #F4F8FF;
+      border: 1px solid #D4DDF7;
+      border-radius: 4px;
+      padding: 8px;
+      flex-shrink: 0;
+      resize: none;
+      font-family: "Inter Tight", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      font-style: italic;
+      line-height: 18px;
+      color: #1a1a2e;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .left-input::placeholder {
+      color: #92A1CF;
+      font-style: italic;
+    }
+    .left-input:focus {
+      border-color: #3b3bef;
+    }
+
+    /* ── Main content ── */
+    :root { --sidebar-width: 448px; }
+
+    .main-wrap {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .batch-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: var(--sidebar-width);
+      right: 0;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 16px;
+      background: #fff;
+      border-top: 1px solid #D4DDF7;
+      z-index: 20;
+      transition: left 0.2s ease;
+    }
+    @keyframes batchSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes batchSlideDown {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(12px); }
+    }
+    @keyframes batchFlash {
+      0%   { background-color: #fff; }
+      25%  { background-color: #D7FF33; }
+      100% { background-color: #fff; }
+    }
+    .batch-bar.visible {
+      display: flex;
+      animation: batchSlideUp 0.2s ease forwards, batchFlash 0.5s ease forwards;
+    }
+    .batch-bar.hiding {
+      display: flex;
+      animation: batchSlideDown 0.2s ease forwards;
+    }
+    .batch-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 18px;
+      color: #000;
+    }
+    .batch-deselect-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 18px;
+      color: #3b3bef;
+      cursor: pointer;
+    }
+    .batch-deselect-btn:hover { text-decoration: underline; }
+    .batch-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .main {
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px 16px 80px;
+    }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      justify-content: space-between;
+      overflow: visible;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-icons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: "Inter Tight", system-ui, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 18px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-outline {
+      background: none;
+      border: 1px solid #D4DDF7;
+      color: #000;
+    }
+    .btn-outline:hover { background: #f4f8ff; }
+
+    .btn-primary {
+      background: #3B3BEF;
+      border: 1px solid transparent;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #2e2ec4; }
+
+    .select-env {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 4px;
+      border: none;
+      border-radius: 4px;
+      outline: 1px solid #D4DDF7;
+      width: 99px;
+      cursor: pointer;
+      font-size: 14px;
+      letter-spacing: 0.01em;
+      line-height: 18px;
+      flex-shrink: 0;
+      background: none;
+      color: #000;
+      font-family: inherit;
+    }
+
+    .sort-dropdown {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .sort-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 4px;
+      border: none;
+      border-radius: 4px;
+      outline: 1px solid #D4DDF7;
+      width: 140px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 18px;
+      background: none;
+      color: #000;
+      font-family: inherit;
+    }
+    .sort-btn:hover { background: #f4f8ff; }
+    .sort-btn.open { outline-color: #3b3bef; }
+    .sort-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 100%;
+      background: #fff;
+      border: 1px solid #D4DDF7;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      z-index: 100;
+      overflow: hidden;
+    }
+    .sort-menu.open { display: block; }
+    .sort-option {
+      display: block;
+      width: 100%;
+      padding: 6px 8px;
+      font-size: 14px;
+      line-height: 18px;
+      font-family: inherit;
+      background: none;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      color: #000;
+      white-space: nowrap;
+    }
+    .sort-option:hover { background: #f4f8ff; }
+    .sort-option.selected { color: #3b3bef; }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 4px;
+      outline: 1px solid #D4DDF7;
+      width: 151px;
+      flex-shrink: 0;
+      transition: outline-color 0.15s ease;
+    }
+    .search-box:focus-within { outline-color: #3b3bef; }
+    .search-box input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: "Inter Tight", system-ui, sans-serif;
+      font-size: 12px;
+      line-height: 16px;
+      color: #000;
+      flex: 1;
+      min-width: 0;
+    }
+    .search-box input::placeholder { color: #92A1CF; }
+    .search-clear {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      color: #92A1CF;
+      flex-shrink: 0;
+      line-height: 0;
+    }
+    .search-clear:hover { color: #000; }
+    .search-box.has-value .search-clear { display: flex; }
+
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      cursor: pointer;
+      border-radius: 4px;
+      background: none;
+      border: none;
+    }
+
+    .icon-btn:hover { background: #EBEEF7; }
+
+    #tooltip {
+      position: fixed;
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 12px;
+      font-family: 'Inter Tight', sans-serif;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.1s ease;
+      z-index: 9999;
+    }
+
+    /* ── Checkboxes ── */
+    .row-checkbox {
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      opacity: 0;
+      cursor: pointer;
+      accent-color: #3b3bef;
+      margin: 0;
+      transition: opacity 0.15s ease;
+      z-index: 1;
+    }
+
+    .toggle-row:hover .row-checkbox,
+    .tree-row:hover .row-checkbox,
+    .row-checkbox:checked,
+    .row-checkbox:indeterminate { opacity: 1; }
+
+    /* ── Badges ── */
+    .badges {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .badge {
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 16px;
+    }
+
+    .badge-green  { background: #E0FFE5; }
+    .badge-blue   { background: #DFF3FE; }
+    .badge-pink   { background: #FFE5F3; }
+    .badges .badge-pink { order: 10; }
+    .badge-draft  { background: #F0EDFF; }
+    .badge-total  { background: #EBEBEB; display: none; }
+
+    .tree-item.expanded > .toggle-row .badges { display: none; }
+    .tree-item.expanded > .toggle-row .badge-total { display: flex; }
+
+    /* ── Tree ── */
+    .tree-item {
+      border: 1px solid #D4DDF7;
+      border-radius: 4px;
+    }
+
+    .tree-item > .toggle-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 8px 8px 8px 28px;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 4px;
+    }
+
+    .tree-item > .toggle-row:hover { background: #fafbff; }
+    .tree-item > .toggle-row:hover .row-label span,
+    .tree-sub-item > .toggle-row:hover .row-label span,
+    .tree-sub-item > .tree-children > .tree-row:hover .test-item-label span { color: #3b3bef; }
+    .tree-item > .toggle-row:hover .chevron,
+    .tree-sub-item > .toggle-row:hover .chevron { stroke: #3b3bef; }
+
+    .tree-item.expanded > .toggle-row {
+      border-bottom: 1px solid #EBEEF7;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .tree-item > .tree-children { display: none; }
+    .tree-item.expanded > .tree-children { display: block; }
+
+    /* Sub-items (nested inside a tree-item's children) */
+    .tree-sub-item > .toggle-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 8px 8px 8px 44px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid #EBEEF7;
+    }
+
+    .tree-sub-item > .toggle-row:hover { background: #fafbff; }
+
+    /* Last collapsed sub-item needs no bottom border */
+    .tree-sub-item:last-child:not(.expanded) > .toggle-row { border-bottom: none; }
+
+    .tree-sub-item > .tree-children { display: none; }
+    .tree-sub-item.expanded > .tree-children { display: block; }
+
+    /* Leaf rows inside a sub-item's children */
+    .tree-sub-item > .tree-children > .tree-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 8px 8px 68px;
+      border-bottom: 1px solid #EBEEF7;
+      cursor: default;
+    }
+
+    .tree-sub-item > .tree-children > .tree-row:last-child { border-bottom: none; }
+    .tree-sub-item > .tree-children > .tree-row:hover { background: #fafbff; }
+
+    /* Chevron */
+    .chevron { transition: transform 0.15s ease, stroke 0.15s ease; flex-shrink: 0; }
+    .tree-item.expanded > .toggle-row .chevron { transform: rotate(90deg); }
+    .tree-sub-item.expanded > .toggle-row .chevron { transform: rotate(90deg); }
+
+    .row-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .row-label span {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 20px;
+      flex-shrink: 0;
+    }
+
+    .test-item-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .test-item-label span {
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      line-height: 18px;
+    }
+
+    /* ── Browser placeholder ── */
+    #browser-placeholder {
+      display: none;
+      background: #060B1E;
+      border-radius: 8px;
+      aspect-ratio: 16 / 9;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    #browser-placeholder.shown { opacity: 1; }
+
+    /* ── Chat messages ── */
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: auto;
+    }
+    .chat-msg-user {
+      align-self: flex-start;
+      background: #EEF2FF;
+      border-radius: 12px 12px 12px 2px;
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 18px;
+    }
+    .chat-msg-ai {
+      align-self: flex-start;
+      font-size: 14px;
+      line-height: 18px;
+      color: #000;
+    }
+
+    /* ── Wolf thinking ── */
+    .wolf-thinking {
+      height: 16px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    .wolf-thinking img { height: 16px; width: auto; }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex: 1;
+      min-height: 400px;
+    }
+
+    .empty-state-label {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 20px;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Top nav ── -->
+  <nav class="nav">
+    <div class="nav-left">
+      <!-- Brand -->
+      <div class="nav-brand">
+        <svg class="nav-logo" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="569.221px" height="620px" viewBox="0 0 569.221 620" xml:space="preserve">
+          <path fill="#F5EBDC" d="M284.608,610c-117.216,0-182.052-9.66-224.262-33.558C29.321,558.898,10,532.462,10,507.544V176.782 c0-37.122,27.204-79.578,70.687-110.598C116.8,40.504,181.63,10,284.608,10c179.261,0,274.614,96.864,274.614,166.782V507.28 c0,25.171-19.326,51.612-50.604,69.155C466.667,600.34,401.83,610,284.608,610"/>
+          <path fill="#FF8732" d="M494.188,550.318C453.292,573.4,383.129,580,286.078,580c-97.05,0-167.214-6.6-208.104-29.682 c-24.553-13.824-36.973-32.67-36.973-46.184c0-7.69,4.093-12.096,13.206-12.096h463.733c9.12,0,13.213,4.404,13.213,12.096 c0.006,13.514-12.421,32.358-36.961,46.184H494.188 M517.942,192.196H54.208c-9.12,0-13.206-4.71-13.206-13.188 C41.002,128.74,116.662,40,286.078,40c167.851,0,245.082,88.74,245.082,139.008C531.16,187.486,527.068,192.196,517.942,192.196"/>
+          <path fill="#D62300" d="M139.78,399.532c-1.416-2.196-1.566-3.612-1.566-4.236c0-1.728,0.942-2.981,2.826-4.71 c4.405-4.092,15.265-14.298,21.24-23.563c4.56-7.067,6.444-13.506,6.444-18.84c0-13.666-12.42-24.354-25.957-24.354 c-8.652,0-16.83,4.872-22.332,13.824c-7.393,11.934-16.206,25.758-21.863,31.26c-1.417,1.417-2.202,1.729-3.3,1.729 c-1.891,0-2.676-1.26-2.676-3.299v-15.703c0-15.391-9.12-27.805-25.639-27.805c-16.674,0-25.645,12.408-25.645,27.805v96.756 c0,15.39,8.964,27.81,25.645,27.81c16.519,0,25.639-12.408,25.639-27.81V426.1c0-1.89,0.785-3.3,2.676-3.3 c2.52,0,3.149,2.516,3.78,3.77c3.617,8.64,14.147,27.012,23.909,37.854c6.605,7.225,14.784,11.784,23.437,11.784 c14.628,0,26.904-12.726,26.904-26.394c0-8.479-3.624-14.762-10.542-22.297c-8.813-9.6-19.2-22.169-22.98-27.978V399.532 M335.95,314.872c24.695,0,40.271-15.708,40.271-38.64c0-14.604-8.82-24.66-26.43-24.66h-5.028c-9.288,0-16.524,4.404-16.524,14.298 c0,8.796,7.71,13.038,13.53,13.038c2.988,0,4.884,0.942,4.884,3.144c0,2.82-3.3,4.71-7.081,4.71 c-11.802,0-19.823-8.329-19.823-23.88c0-17.274,11.017-23.55,19.507-23.55c10.38,0,12.113,5.34,19.35,5.34 c8.339,0,14.004-6.912,14.004-14.136c0-5.34-2.364-9.42-5.981-12.252c-6.606-4.872-15.883-8.478-29.725-8.478 c-24.39,0-48.138,16.02-48.138,53.088C288.754,298.378,312.509,314.872,335.95,314.872 M59.398,313.93h22.188 c20.922,0,33.66-13.979,33.66-31.416c0-13.98-8.34-20.418-10.224-21.99c-0.78-0.63-1.566-1.254-1.566-1.884 c0-0.78,0.468-1.098,1.26-2.04c2.982-3.456,5.971-8.952,5.971-16.968c0-18.84-12.744-28.902-32.563-28.902h-18.72 c-12.426,0-18.402,7.236-18.402,16.968v69.264C41.002,306.706,46.978,313.93,59.398,313.93 M68.686,237.754 c0-2.04,1.261-3.618,3.93-3.618h2.046c6.762,0,8.814,4.71,8.814,8.802c0,3.768-2.041,9.108-8.814,9.108h-2.04 c-2.676,0-3.937-1.566-3.937-3.612L68.686,237.754 M68.686,274.51c0-2.04,1.261-3.618,3.93-3.618h2.833 c7.554,0,9.75,5.022,9.75,9.582c0,4.092-2.202,9.9-9.75,9.9h-2.826c-2.676,0-3.937-1.572-3.937-3.618V274.51 M470.129,314.71 c10.066,0,15.569-7.542,15.569-16.962v-16.65c0-2.041,0.947-2.982,2.521-2.982c1.884,0,2.508,1.098,2.819,2.982 c1.422,8.01,5.195,18.846,9.438,24.348c5.353,7.074,10.38,9.277,15.42,9.277c8.172,0,15.259-6.445,15.259-14.461 c0-5.34-2.202-9.27-5.035-12.876c-5.352-6.75-8.65-11.146-10.69-16.644c-0.475-1.26-0.162-2.364,1.26-3.457 c4.878-3.768,10.542-12.096,10.542-25.284c0-19.95-16.523-31.26-36.504-31.26H472.96c-12.427,0-18.401,7.218-18.401,16.962v70.056 c0,9.42,5.502,16.95,15.576,16.95 M483.97,240.43c0-2.04,1.26-3.624,3.931-3.624h2.201 c6.612,0,8.652,4.716,8.652,8.802c0,3.93-2.04,9.108-8.652,9.108h-2.201c-2.677,0-3.931-1.56-3.931-3.612v-10.68V240.43 M211.516,323.824c-17.616,0-27.217,13.188-27.217,29.682V446.5c0,16.5,9.601,29.688,27.217,29.688 c17.615,0,27.21-13.193,27.21-29.688v-92.994C238.726,337.023,229.138,323.824,211.516,323.824 M491.2,384.298h-7.705 c-13.841,0-24.539,6.438-24.539,20.568c0,12.882,11.641,19.008,20.291,19.008c4.248,0,7.236,1.26,7.236,4.554 c0,4.08-5.034,6.75-10.38,6.75c-17.778,0-29.892-12.096-29.892-34.56c0-24.972,16.519-34.08,29.256-34.08 c15.576,0,18.09,7.86,28.943,7.86c12.581,0,21.077-10.213,21.077-20.58c0-7.692-3.461-13.664-8.964-17.748 c-9.6-7.074-24.064-12.26-44.52-12.26c-36.648,0-72.36,23.088-72.36,76.808c0,51.359,35.7,75.396,70.944,75.396 c36.96,0,60.4-22.775,60.4-56.076C530.997,398.902,517.792,384.298,491.2,384.298 M431.74,313.93c8.82,0,15.738-5.184,15.738-14.609 c0-9.271-6.924-14.454-15.732-14.454h-14.159c-2.67,0-3.931-1.566-3.931-3.612v-2.988c0-2.04,1.261-3.612,3.937-3.612h10.854 c7.555,0,13.531-4.554,13.531-12.57c0-8.004-5.977-12.564-13.531-12.564h-10.858c-2.671,0-3.931-1.572-3.931-3.618v-2.514 c0-2.04,1.26-3.612,3.937-3.612h14.153c8.809,0,15.732-5.184,15.732-14.604c0-9.276-6.924-14.46-15.732-14.46h-29.729 c-12.419,0-18.402,7.224-18.402,16.968v69.265c0,9.737,5.977,16.967,18.402,16.967h29.729 M161.494,314.71 c25.482,0,39.012-15.24,39.012-34.392V227.38c0-9.42-5.502-16.968-15.575-16.968c-10.068,0-15.57,7.548-15.57,16.968v51.204 c0,3.762-2.202,8.16-7.866,8.16s-7.56-4.398-7.56-8.16V227.38c0-9.42-5.658-16.968-15.731-16.968 c-10.067,0-15.57,7.548-15.57,16.968v52.932c0.007,19.165,13.381,34.393,38.862,34.393 M271.924,314.71 c8.18,0,15.265-6.438,15.265-14.454c0-5.34-2.202-9.27-5.034-12.876c-4.56-5.97-8.652-11.154-10.692-16.644 c-0.474-1.26-0.161-2.364,1.261-3.462c4.878-3.762,10.542-12.09,10.542-25.284c0-19.95-16.524-31.26-36.504-31.26h-17.784 c-12.42,0-18.402,7.224-18.402,16.968v70.056c0,9.42,5.509,16.969,15.576,16.969c10.068,0,15.576-7.549,15.576-16.969V281.11 c0-2.04,0.941-2.988,2.514-2.988c1.89,0,2.514,1.098,2.826,2.988c1.417,8.004,5.189,18.84,9.438,24.348 C261.856,312.514,266.884,314.71,271.924,314.71 M246.124,254.71h-2.208c-2.676,0-3.93-1.566-3.93-3.612v-10.674 c0-2.04,1.26-3.618,3.93-3.618h2.202c6.612,0,8.652,4.716,8.652,8.802c0,3.918-2.04,9.102-8.652,9.102H246.124 M362.368,323.824 c-16.199,0-25.008,12.09-25.008,27.33v33.924c0,2.82-0.948,4.086-2.676,4.086c-1.26,0-2.202-0.78-3.3-2.982l-21.864-42.402 c-8.34-16.182-16.992-19.949-26.898-19.949c-16.518,0-25.644,12.402-25.644,27.96v97.074c0,15.239,8.808,27.331,25.008,27.331 c16.206,0,25.008-12.097,25.008-27.331v-33.925c0-2.819,0.948-4.092,2.677-4.092c1.26,0,2.208,0.786,3.3,2.988l21.863,42.408 c8.34,16.182,17.305,19.95,26.904,19.95c16.519,0,25.645-12.409,25.645-27.96V351.16c0-15.24-8.81-27.33-25.015-27.33V323.824"/>
+        </svg>
+        <div class="nav-brand-name">
+          <span>Burger King</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+
+      <!-- Nav links -->
+      <div class="nav-links">
+        <a class="nav-link active" href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>
+          <span>Map</span>
+        </a>
+        <a class="nav-link" href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
+          <span>Automate</span>
+        </a>
+        <a class="nav-link" href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
+          <span>Runs</span>
+        </a>
+        <a class="nav-link" href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg>
+          <span>Bugs</span>
+        </a>
+        <a class="nav-link" href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+          <span>Requests</span>
+        </a>
+        <a class="nav-link" href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>
+          <span>Maintenance</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Avatar -->
+    <div class="avatar">H</div>
+  </nav>
+
+  <div class="body-row">
+  <!-- ── Left panel (empty) ── -->
+  <aside class="left-panel">
+    <div class="recent-bar">
+      <button class="icon-btn" id="sidebar-toggle" data-tooltip="Close sidebar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="18" x="3" y="3" rx="2"/>
+          <path d="M15 3v18"/>
+          <path d="m10 15-3-3 3-3"/>
+        </svg>
+      </button>
+      <button class="recent-btn active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
+          <path d="M7 11h10"/><path d="M7 15h6"/><path d="M7 7h8"/>
+        </svg>
+      </button>
+      <button class="recent-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
+          <path d="M7 11h10"/><path d="M7 15h6"/><path d="M7 7h8"/>
+        </svg>
+      </button>
+      <button class="recent-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
+          <path d="M7 11h10"/><path d="M7 15h6"/><path d="M7 7h8"/>
+        </svg>
+      </button>
+    </div>
+    <div class="left-panel-content">
+      <div id="browser-placeholder">
+        <iframe
+          src="https://www.youtube.com/embed/B7zDTlQP1-o?autoplay=1&mute=1&controls=0&loop=1&playlist=B7zDTlQP1-o&modestbranding=1&rel=0"
+          style="width:100%;height:100%;border:none;border-radius:8px;"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <div class="chat-scroll-area">
+        <div class="left-panel-inner">
+          <div class="left-chat-text">Hey Haroon,<br>Here's the status of Burger King</div>
+
+          <div class="left-env-block">
+            <div class="left-env-label">❌ Production</div>
+            <div class="left-env-badges">
+              <div class="badge badge-pink"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg>2</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>3</div>
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>40</div>
+            </div>
+            <div class="left-env-desc">You have bugs in production. You should probably get on that.</div>
+          </div>
+
+          <div class="left-env-block">
+            <div class="left-env-label">❌ Staging</div>
+            <div class="left-env-badges">
+              <div class="badge badge-pink"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg>3</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>3</div>
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>40</div>
+            </div>
+            <div class="left-env-desc">You have bugs in staging. You shouldn't release.</div>
+          </div>
+        </div>
+        <div id="chat-messages" class="chat-messages"></div>
+      </div>
+
+      <div class="left-help-block">
+        <div id="wolf-thinking" class="wolf-thinking"><img src="wolfrun.gif" alt=""></div>
+        <div class="left-chat-text">What can I help you with?</div>
+        <div class="left-input-wrap">
+          <div class="input-resize-handle" id="input-resize">
+            <div class="input-resize-indicator"></div>
+          </div>
+          <textarea class="left-input" placeholder="Which area of my app is the most bug-prone..."></textarea>
+        </div>
+        <div class="left-chips">
+          <button class="chip">Find more flows</button>
+          <button class="chip">Automate tests</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main content ── -->
+  <div class="main-wrap">
+  <main class="main">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <!-- Environment selector -->
+        <button class="select-env">
+          <span>Staging</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+
+        <!-- Search -->
+        <div class="search-box">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <input id="search-input" type="text" placeholder="Search…" autocomplete="off" />
+          <button class="search-clear" id="search-clear" tabindex="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Sort -->
+        <div class="sort-dropdown" id="sort-dropdown">
+          <button class="sort-btn" id="sort-btn">
+            <span id="sort-label">Bugs descending</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="sort-menu" id="sort-menu">
+            <button class="sort-option selected" data-value="bugs-desc">Bugs descending</button>
+            <button class="sort-option" data-value="name-asc">Name (A–Z)</button>
+            <button class="sort-option" data-value="name-desc">Name (Z–A)</button>
+          </div>
+        </div>
+
+        <!-- Icon buttons -->
+        <div class="toolbar-icons">
+          <button class="icon-btn" data-tooltip="Filter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg>
+          </button>
+          <button class="icon-btn" data-tooltip="New folder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+          </button>
+          <button class="icon-btn" data-tooltip="List view">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg>
+          </button>
+          <button id="expand-btn" class="icon-btn" data-tooltip="Expand groups">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h8"/><path d="M3 12h8"/><path d="M3 19h8"/><path d="m15 8 3-3 3 3"/><path d="m15 16 3 3 3-3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <button class="btn btn-outline">Run all flows</button>
+        <button class="btn btn-primary">Map new flows</button>
+      </div>
+    </div>
+
+    <!-- Mobile App -->
+    <div class="tree-item">
+      <div class="toggle-row">
+        <div class="row-label">
+          <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <span>Mobile App</span>
+        </div>
+        <div class="badges">
+          <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>7</div>
+          <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>3</div>
+          <div class="badge badge-pink"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg>2</div>
+          <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>3</div>
+        </div>
+        <div class="badge badge-total">15</div>
+      </div>
+      <div class="tree-children">
+        <!-- Onboarding & Auth -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Onboarding &amp; Auth</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>2</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-pink"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg>1</div>
+              <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Guest checkout completes without account creation</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Returns existing user to home screen after login</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Add biometric login for returning users</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-pink" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg></div><span>Validate password reset link triggers successful recovery email</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-draft" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><span>Implement social login via Google</span></div></div>
+          </div>
+        </div>
+        <!-- Location & Store -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Location &amp; Store</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>3</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Detects nearest store using device GPS</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Displays store hours and pickup availability</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Allows manual store search by zip code</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Improve store filter by drive-thru availability</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-draft" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><span>Add favorite store persistence across sessions</span></div></div>
+          </div>
+        </div>
+        <!-- Royal Perks -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Royal Perks</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>2</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-pink"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg>1</div>
+              <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Displays current crown points balance on home screen</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Redeems earned reward at checkout successfully</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Add push notification for expiring rewards</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-pink" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg></div><span>Verify Crowns balance updates immediately after purchase</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-draft" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><span>Show points earned in order confirmation</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu & Customization -->
+    <div class="tree-item">
+      <div class="toggle-row">
+        <div class="row-label">
+          <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <span>Menu &amp; Customization</span>
+        </div>
+        <div class="badges">
+          <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>6</div>
+          <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>2</div>
+          <div class="badge badge-pink"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg>1</div>
+          <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+        </div>
+        <div class="badge badge-total">10</div>
+      </div>
+      <div class="tree-children">
+        <!-- Product Discovery -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Product Discovery</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>3</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Browses menu categories without errors</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Displays item calories and allergen info</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Shows featured items on home screen</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Improve search to include ingredient keywords</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-draft" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><span>Add seasonal items carousel to home screen</span></div></div>
+          </div>
+        </div>
+        <!-- Configuration -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Configuration</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>3</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-pink"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Adds bacon to Whopper successfully</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Removes pickles from sandwich</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Selects no-onion modification and persists to cart</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Add multi-item bulk customization option</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-pink" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-9"/><path d="M14 7a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4z"/><path d="M14.12 3.88 16 2"/><path d="M21 21a4 4 0 0 0-3.81-4"/><path d="M21 5a4 4 0 0 1-3.55 3.97"/><path d="M22 13h-4"/><path d="M3 21a4 4 0 0 1 3.81-4"/><path d="M3 5a4 4 0 0 0 3.55 3.97"/><path d="M6 13H2"/><path d="m8 2 1.88 1.88"/><path d="M9 7.13V6a3 3 0 1 1 6 0v1.13"/></svg></div><span>Confirm premium add-on charges (Bacon/Cheese) calculate correctly</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout & Payment -->
+    <div class="tree-item">
+      <div class="toggle-row">
+        <div class="row-label">
+          <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <span>Checkout &amp; Payment</span>
+        </div>
+        <div class="badges">
+          <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>6</div>
+          <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>2</div>
+          <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>2</div>
+        </div>
+        <div class="badge badge-total">10</div>
+      </div>
+      <div class="tree-children">
+        <!-- Cart Management -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Cart Management</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>3</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Adds multiple items to cart without duplication</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Updates item quantity from cart screen</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Show estimated wait time in cart summary</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Test manual promo code application for valid discount</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-draft" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><span>Allow saving cart as a favorite order</span></div></div>
+          </div>
+        </div>
+        <!-- Payment Processing -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Payment Processing</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>3</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Completes payment with saved credit card</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Applies valid promo code discount at checkout</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Processes Apple Pay transaction end-to-end</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Support split payment across two methods</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-draft" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><span>Add PayPal as payment option</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fulfillment & Logistics -->
+    <div class="tree-item">
+      <div class="toggle-row">
+        <div class="row-label">
+          <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <span>Fulfillment &amp; Logistics</span>
+        </div>
+        <div class="badges">
+          <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>6</div>
+          <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>2</div>
+          <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>2</div>
+        </div>
+        <div class="badge badge-total">10</div>
+      </div>
+      <div class="tree-children">
+        <!-- Order Method -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Order Method</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>3</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Places drive-thru mobile order with correct ETA</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Selects dine-in and assigns table number</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Add curbside pickup option for all store types</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Validate delivery address pin-drop accuracy on map</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-draft" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><span>Support delivery via third-party integration</span></div></div>
+          </div>
+        </div>
+        <!-- Post-Order -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Post-Order</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>3</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Displays live order status tracker after purchase</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Sends push notification when order is ready</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Allows order cancellation within 60-second window</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Improve ETA accuracy during peak hours</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-draft" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><span>Add receipt email with itemized order details</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Store Operations & Kiosk -->
+    <div class="tree-item">
+      <div class="toggle-row">
+        <div class="row-label">
+          <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <span>Store Operations &amp; Kiosk</span>
+        </div>
+        <div class="badges">
+          <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>3</div>
+          <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+          <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+        </div>
+        <div class="badge badge-total">5</div>
+      </div>
+      <div class="tree-children">
+        <!-- Hardware & Sync -->
+        <div class="tree-sub-item">
+          <div class="toggle-row">
+            <div class="row-label">
+              <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span>Hardware &amp; Sync</span>
+            </div>
+            <div class="badges">
+              <div class="badge badge-green"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>3</div>
+              <div class="badge badge-blue"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg>1</div>
+              <div class="badge badge-draft"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>1</div>
+            </div>
+          </div>
+          <div class="tree-children">
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Kiosk order syncs to kitchen display within 5 seconds</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Payment terminal accepts contactless tap to pay</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-blue" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><span>Add idle screen reset after 2-minute timeout</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-green" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span>Verify real-time inventory sync hides out-of-stock items</span></div></div>
+            <div class="tree-row"><div class="test-item-label"><div class="badge badge-draft" style="padding:4px;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg></div><span>Support multi-language display on kiosk UI</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="empty-state">
+      <svg width="147" height="168" viewBox="0 0 266 305" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <mask id="_pway3g0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="108" y="95" width="54" height="13"><path d="M108.37 95.012H161.255C161.255 95.012 156.715 107.974 136.277 107.974C115.838 107.974 108.377 95.012 108.377 95.012H108.37Z" fill="#fff"/></mask>
+        <defs><clipPath id="_pway3g1"><rect width="266" height="305" fill="#fff"/></clipPath></defs>
+        <g clip-path="url(#_pway3g1)">
+          <path d="M82.743 147.342C82.743 147.342 17.291 107.974 75.282 22.589C51.273 25.18 -16.152 74.216 27.913 127.576C18.233 121.044 11.905 114.724 6.826 104.244C6.826 104.244 -1.284 130.494 30.186 147.342L17.291 145.719C17.291 145.719 37.969 168.404 79.494 155.442" fill="#FFFFFF" />
+          <path d="M82.743 147.342C82.743 147.342 17.291 107.974 75.282 22.589C51.273 25.18 -16.152 74.216 27.913 127.576C18.233 121.044 11.905 114.724 6.826 104.244C6.826 104.244 -1.284 130.494 30.186 147.342L17.291 145.719C17.291 145.719 37.969 168.404 79.494 155.442" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M85.822 79.132L101.128 1.364L133.839 52.562L170.442 1.364L181.857 72.648C181.857 72.648 204.862 86.367 218.843 104.401L196.295 101.162C196.295 101.162 209.845 111.867 218.03 124.167L201.974 121.896C201.974 121.896 225.061 144.69 241.554 170.504C262.819 203.79 241.07 221.32 241.07 221.32L222.74 213.922H34.89L27.592 225.909C27.592 225.909 14.451 216.186 17.858 202.577C21.264 188.967 45.689 145.801 75.862 123.444L56.209 127.726C60.359 117.356 73.657 104.721 73.657 104.721L52.311 108.287C67.882 88.521 85.822 79.126 85.822 79.126V79.132Z" fill="#FFFFFF" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <g mask="url(#_pway3g0)">
+            <path d="M135.696 119.994C142.524 119.994 148.059 113.031 148.059 104.442C148.059 95.853 142.524 88.89 135.696 88.89C128.868 88.89 123.333 95.853 123.333 104.442C123.333 113.031 128.868 119.994 135.696 119.994Z" fill="#000000" />
+          </g>
+          <path d="M108.37 95.012H161.255C161.255 95.012 156.715 107.974 136.277 107.974C115.838 107.974 108.377 95.012 108.377 95.012H108.37Z" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M89.932 144.696C82.744 156.362 76.791 172.89 76.791 172.89" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M181.905 144.696C181.905 144.696 190.178 161.708 193.585 172.89" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M61.711 153.608L1.365 269.607L71.439 303.636H197.967L264.635 249.684L205.265 153.608L167.31 181.147H105.994L61.711 153.608Z" fill="#3B3BEF" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M158.954 120.39C158.954 120.39 156.244 135.724 149.97 147.178C146.236 154.004 141.246 159.444 134.809 159.444C128.371 159.444 122.992 154.004 119.21 147.342C113.251 136.842 110.664 123.308 110.664 123.308" fill="#FFFFFF" />
+          <path d="M158.954 120.39C158.954 120.39 156.244 135.724 149.97 147.178C146.236 154.004 141.246 159.444 134.809 159.444C128.371 159.444 122.992 154.004 119.21 147.342C113.251 136.842 110.664 123.308 110.664 123.308" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M149.97 147.178C146.236 154.003 141.246 159.444 134.809 159.444C128.372 159.444 122.992 154.003 119.21 147.342C123.416 145.692 128.87 144.696 134.809 144.696C140.748 144.696 145.827 145.624 149.97 147.178Z" fill="#000000" />
+          <path d="M235.582 199.059C234.107 201.132 220.96 214.993 213 212.887C213 212.887 218.202 208.564 216.488 205.707C212.515 199.066 222.618 187.823 228.776 182" fill="#FFFFFF" />
+          <path d="M235.582 199.059C234.107 201.132 220.96 214.993 213 212.887C213 212.887 218.202 208.564 216.488 205.707C212.515 199.066 222.618 187.823 228.776 182" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M33.037 204.526C34.511 206.599 48.659 220.461 56.619 218.354C56.619 218.354 51.417 214.031 53.13 211.174C57.103 204.533 47 193.29 40.843 187.467" fill="#FFFFFF" />
+          <path d="M33.037 204.526C34.511 206.599 48.659 220.461 56.619 218.354C56.619 218.354 51.417 214.031 53.13 211.174C57.103 204.533 47 193.29 40.843 187.467" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M104.615 186.036L73.022 298.018" stroke="#7781F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M168.122 184.392L196.561 298.018" stroke="#7781F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M57.097 231.459C57.54 230.136 58.059 228.875 58.646 227.675" stroke="#7781F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M63.159 220.89C73.153 209.484 90.847 205.918 105.729 208.311C121.532 210.854 120.665 225.513 112.152 235.891C103.851 246.009 94.677 256.032 107.797 266.907C117.914 275.286 135.608 276.554 148.107 275.614C156.934 274.945 164.846 270.854 165.556 261.2C166.286 251.3 156.565 244.052 153.684 235.188C146.128 211.952 171.918 190.086 193.203 203.047C200.418 207.438 205.716 215.634 206.753 224.17" stroke="#7781F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="11.98 11.98" />
+          <path d="M206.924 228.254C206.863 229.618 206.692 230.968 206.385 232.304" stroke="#7781F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M52.864 251.872C56.268 251.872 59.028 249.116 59.028 245.715C59.028 242.315 56.268 239.559 52.864 239.559C49.46 239.559 46.7 242.315 46.7 245.715C46.7 249.116 49.46 251.872 52.864 251.872Z" fill="#7781F7" />
+          <path d="M211.238 244.427L229.97 246.888" stroke="#7781F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M220.604 237.527L218.003 254.163" stroke="#7781F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M66.524 175.965L83.365 184.392" stroke="#7781F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M64.606 181.822L81.446 190.249" stroke="#7781F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      </svg>
+      <span class="empty-state-label">Map your app</span>
+    </div>
+
+  </main>
+  </div><!-- /.main-wrap -->
+  </div><!-- /.body-row -->
+
+</div>
+
+<div class="batch-bar" id="batch-bar">
+  <div class="batch-bar-left">
+    <span id="batch-count"></span>
+    <button class="batch-deselect-btn" id="batch-deselect">deselect</button>
+  </div>
+  <div class="batch-bar-actions">
+    <button class="icon-btn" data-tooltip="Delete flows">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+    </button>
+    <button class="icon-btn" data-tooltip="Move flows">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1"/><path d="M2 13h10"/><path d="m9 16 3-3-3-3"/></svg>
+    </button>
+    <button class="icon-btn" data-tooltip="Edit tags">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="#000"/></svg>
+    </button>
+  </div>
+  <button class="btn btn-outline" id="batch-run-btn">Run flows</button>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+  document.querySelectorAll('.tree-item > .toggle-row, .tree-sub-item > .toggle-row').forEach(row => {
+    row.addEventListener('click', () => {
+      row.parentElement.classList.toggle('expanded');
+    });
+  });
+
+  // Inject checkboxes
+  document.querySelectorAll('.toggle-row, .tree-row').forEach(row => {
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.className = 'row-checkbox';
+    cb.addEventListener('click', e => e.stopPropagation());
+    row.appendChild(cb);
+  });
+
+  // Cascade: update ancestor indeterminate/checked state
+  function updateAncestors(startEl) {
+    ['tree-sub-item', 'tree-item'].forEach(cls => {
+      const ancestor = startEl.closest('.' + cls);
+      if (!ancestor) return;
+      const parentCb = ancestor.querySelector(':scope > .toggle-row .row-checkbox');
+      if (!parentCb) return;
+      const childCbs = [...ancestor.querySelectorAll('.row-checkbox')].filter(cb => cb !== parentCb);
+      const checkedCount = childCbs.filter(cb => cb.checked).length;
+      const indetermCount = childCbs.filter(cb => cb.indeterminate).length;
+      parentCb.indeterminate = false;
+      if (checkedCount === childCbs.length) {
+        parentCb.checked = true;
+      } else if (checkedCount > 0 || indetermCount > 0) {
+        parentCb.checked = false;
+        parentCb.indeterminate = true;
+      } else {
+        parentCb.checked = false;
+      }
+    });
+  }
+
+  const mapNewFlowsBtn = document.querySelector('.btn-primary');
+  const browserPlaceholder = document.getElementById('browser-placeholder');
+  const chatMessages = document.getElementById('chat-messages');
+  const wolfThinking = document.getElementById('wolf-thinking');
+
+  function scrollToBottom() {
+    chatScrollArea.scrollTop = chatScrollArea.scrollHeight;
+  }
+
+  function addUserMsg(text) {
+    const el = document.createElement('div');
+    el.className = 'chat-msg-user';
+    el.textContent = text;
+    chatMessages.appendChild(el);
+    scrollToBottom();
+  }
+  function addAIMsg(text) {
+    const el = document.createElement('div');
+    el.className = 'chat-msg-ai';
+    el.textContent = text;
+    chatMessages.appendChild(el);
+    scrollToBottom();
+  }
+  function showWolf() { wolfThinking.style.opacity = '1'; scrollToBottom(); }
+  function hideWolf() { wolfThinking.style.opacity = '0'; }
+
+  const chatInput = document.querySelector('.left-input');
+  function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatInput.value = '';
+    chatInput.style.height = '';
+    const innerEl = leftPanel.querySelector('.left-panel-inner');
+    if (!innerEl.classList.contains('faded')) {
+      innerEl.classList.add('fading');
+      setTimeout(() => { innerEl.classList.remove('fading'); innerEl.classList.add('faded'); }, 320);
+    }
+    addUserMsg(text);
+    setTimeout(showWolf, 150);
+    setTimeout(() => {
+      hideWolf();
+      setTimeout(() => addAIMsg("Sorry, I'm not trained to respond to that!"), 150);
+    }, 900);
+  }
+
+  chatInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  let mapFlowsActive = false;
+  mapNewFlowsBtn.addEventListener('click', () => {
+    if (mapFlowsActive) return;
+    mapFlowsActive = true;
+
+    // Open sidebar if closed
+    if (leftPanel.classList.contains('closed')) {
+      leftPanel.classList.remove('closed');
+      updateSidebarVar();
+    }
+
+    // Fade out top portion
+    const innerEl = leftPanel.querySelector('.left-panel-inner');
+    if (!innerEl.classList.contains('faded')) {
+      innerEl.classList.add('fading');
+      setTimeout(() => { innerEl.classList.remove('fading'); innerEl.classList.add('faded'); }, 320);
+    }
+
+    // 1. User message
+    addUserMsg('Map new flows');
+
+    // 2. Wolf appears (fast)
+    setTimeout(showWolf, 150);
+
+    // 3. Wolf hides, first AI message
+    setTimeout(() => {
+      hideWolf();
+      setTimeout(() => addAIMsg('Can do, let me start up a playground.'), 200);
+    }, 800);
+
+    // 4. Wolf appears again
+    setTimeout(showWolf, 1300);
+
+    // 5. Browser placeholder + sidebar expand
+    setTimeout(() => {
+      hideWolf();
+      browserPlaceholder.style.display = 'block';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        browserPlaceholder.classList.add('shown');
+      }));
+      leftPanel.classList.remove('closed');
+      leftPanelContent.style.width = maxWidth + 'px';
+      leftPanel.style.width = (48 + maxWidth) + 'px';
+      updateSidebarVar();
+    }, 2000);
+
+    // 6. Final AI message + keep wolf visible
+    setTimeout(() => {
+      addAIMsg("Playground started, I'm gettin' to work mappin'");
+      setTimeout(showWolf, 200);
+    }, 2600);
+  });
+
+  const runBtn = document.querySelector('.btn-outline');
+
+  const batchBar = document.getElementById('batch-bar');
+  const batchCount = document.getElementById('batch-count');
+  const batchRunBtn = document.getElementById('batch-run-btn');
+  const batchDeselect = document.getElementById('batch-deselect');
+
+  function updateRunBtn() {
+    const count = document.querySelectorAll('.tree-row .row-checkbox:checked').length;
+    const s = count === 1 ? '' : 's';
+    runBtn.textContent = count > 0 ? `Run ${count} flow${s}` : 'Run all flows';
+    batchCount.textContent = `${count} flow${s} selected`;
+    batchRunBtn.textContent = `Run ${count} flow${s}`;
+    if (count > 0) {
+      batchBar.classList.remove('hiding');
+      batchBar.classList.add('visible');
+    } else if (batchBar.classList.contains('visible')) {
+      batchBar.classList.add('hiding');
+      batchBar.addEventListener('animationend', () => {
+        batchBar.classList.remove('visible', 'hiding');
+      }, { once: true });
+    }
+  }
+
+  batchDeselect.addEventListener('click', () => {
+    document.querySelectorAll('.row-checkbox').forEach(cb => {
+      cb.checked = false;
+      cb.indeterminate = false;
+    });
+    updateRunBtn();
+  });
+
+  document.querySelectorAll('.row-checkbox').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const toggleRow = cb.closest('.toggle-row');
+      if (toggleRow) {
+        const container = toggleRow.parentElement;
+        container.querySelectorAll('.row-checkbox').forEach(childCb => {
+          if (childCb !== cb) { childCb.checked = cb.checked; childCb.indeterminate = false; }
+        });
+      }
+      updateAncestors(cb);
+      updateRunBtn();
+    });
+  });
+
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const leftPanel = document.querySelector('.left-panel');
+
+  function updateSidebarVar() {
+    document.documentElement.style.setProperty('--sidebar-width', leftPanel.offsetWidth + 'px');
+  }
+  updateSidebarVar();
+
+  const closeSvg = `<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m10 15-3-3 3-3"/>`;
+  const openSvg  = `<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/>`;
+  let savedPanelWidth = null;
+  let savedContentWidth = null;
+  sidebarToggle.addEventListener('click', () => {
+    const closing = !leftPanel.classList.contains('closed');
+    const content = leftPanel.querySelector('.left-panel-content');
+    if (closing) {
+      savedPanelWidth = leftPanel.style.width || (leftPanel.offsetWidth + 'px');
+      savedContentWidth = content.style.width || null;
+      leftPanel.style.width = '';
+      content.style.width = '';
+      document.documentElement.style.setProperty('--sidebar-width', '48px');
+    } else {
+      if (savedPanelWidth) leftPanel.style.width = savedPanelWidth;
+      if (savedContentWidth) content.style.width = savedContentWidth;
+      document.documentElement.style.setProperty('--sidebar-width', savedPanelWidth || '448px');
+    }
+    leftPanel.classList.toggle('closed', closing);
+    sidebarToggle.querySelector('svg').innerHTML = closing ? openSvg : closeSvg;
+    sidebarToggle.dataset.tooltip = closing ? 'Open sidebar' : 'Close sidebar';
+    leftPanel.addEventListener('transitionend', function f(e) {
+      if (e.target !== leftPanel || e.propertyName !== 'width') return;
+      updateSidebarVar();
+      leftPanel.removeEventListener('transitionend', f);
+    });
+  });
+
+  const expandCollapseBtn = document.querySelector('#expand-btn');
+  const expandIcon = `<path d="M3 5h8"/><path d="M3 12h8"/><path d="M3 19h8"/><path d="m15 8 3-3 3 3"/><path d="m15 16 3 3 3-3"/>`;
+  const collapseIcon = `<path d="M3 5h8"/><path d="M3 12h8"/><path d="M3 19h8"/><path d="m15 5 3 3 3-3"/><path d="m15 19 3-3 3 3"/>`;
+  let allExpanded = false;
+  expandCollapseBtn.addEventListener('click', () => {
+    allExpanded = !allExpanded;
+    document.querySelectorAll('.tree-item, .tree-sub-item').forEach(el => {
+      el.classList.toggle('expanded', allExpanded);
+    });
+    expandCollapseBtn.dataset.tooltip = allExpanded ? 'Collapse groups' : 'Expand groups';
+    expandCollapseBtn.querySelector('svg').innerHTML = allExpanded ? collapseIcon : expandIcon;
+  });
+
+  // Badge tooltips
+  document.querySelectorAll('.badge').forEach(badge => {
+    const num = badge.textContent.trim();
+    if (!num || isNaN(num)) return;
+    const s = num === '1' ? '' : 's';
+    if (badge.classList.contains('badge-green'))       badge.dataset.tooltip = `${num} test${s} passing`;
+    else if (badge.classList.contains('badge-blue'))   badge.dataset.tooltip = `${num} test${s} in maintenance`;
+    else if (badge.classList.contains('badge-pink'))   badge.dataset.tooltip = `${num} bug${s}`;
+    else if (badge.classList.contains('badge-draft'))  badge.dataset.tooltip = `${num} draft${s}`;
+    else if (badge.classList.contains('badge-total'))  badge.dataset.tooltip = `${num} total test${s}`;
+  });
+
+  // Tooltip via event delegation (works for static + dynamic elements)
+  const tooltip = document.getElementById('tooltip');
+  function showTooltip(el) {
+    tooltip.textContent = el.dataset.tooltip;
+    const r = el.getBoundingClientRect();
+    tooltip.style.opacity = '0';
+    tooltip.style.display = 'block';
+    const tw = tooltip.offsetWidth;
+    const th = tooltip.offsetHeight;
+    const margin = 8;
+    const left = Math.max(margin, Math.min(r.left + r.width / 2 - tw / 2, window.innerWidth - tw - margin));
+    const top = r.top - th - 6 < margin ? r.bottom + 6 : r.top - th - 6;
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = top + 'px';
+    tooltip.style.opacity = '1';
+  }
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tooltip]');
+    if (el) showTooltip(el);
+  });
+  document.addEventListener('mouseout', e => {
+    const el = e.target.closest('[data-tooltip]');
+    if (el && !el.contains(e.relatedTarget)) tooltip.style.opacity = '0';
+  });
+
+
+  // Sidebar resize
+  const leftPanelContent = document.querySelector('.left-panel-content');
+  const chatScrollArea = leftPanelContent.querySelector('.chat-scroll-area');
+  const minWidth = 200;
+  const maxWidth = 600;
+
+  leftPanel.addEventListener('mousedown', e => {
+    if (leftPanel.classList.contains('closed')) return;
+    if (leftPanel.getBoundingClientRect().right - e.clientX > 6) return;
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = leftPanelContent.offsetWidth;
+    leftPanel.style.transition = 'none';
+
+    function onMouseMove(e) {
+      const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + e.clientX - startX));
+      leftPanelContent.style.width = newWidth + 'px';
+      leftPanel.style.width = (48 + newWidth) + 'px';
+      updateSidebarVar();
+    }
+    function onMouseUp() {
+      leftPanel.style.transition = '';
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+
+  // Text input resize from top
+  const inputResizeHandle = document.getElementById('input-resize');
+  const leftInputEl = inputResizeHandle.nextElementSibling;
+  const minInputHeight = 60;
+  const maxInputHeight = 400;
+
+  inputResizeHandle.addEventListener('mousedown', e => {
+    e.preventDefault();
+    inputResizeHandle.classList.add('dragging');
+    const startY = e.clientY;
+    const startHeight = leftInputEl.offsetHeight;
+
+    function onInputMouseMove(e) {
+      const delta = startY - e.clientY;
+      const newHeight = Math.max(minInputHeight, Math.min(maxInputHeight, startHeight + delta));
+      leftInputEl.style.height = newHeight + 'px';
+    }
+
+    function onInputMouseUp() {
+      inputResizeHandle.classList.remove('dragging');
+      document.removeEventListener('mousemove', onInputMouseMove);
+      document.removeEventListener('mouseup', onInputMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    document.body.style.cursor = 'ns-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onInputMouseMove);
+    document.addEventListener('mouseup', onInputMouseUp);
+  });
+
+  // Staggered sidebar entrance
+
+  // Search
+  const searchInput = document.getElementById('search-input');
+  const searchClear = document.getElementById('search-clear');
+  const searchBox = searchInput.closest('.search-box');
+
+  function runSearch() {
+    const query = searchInput.value.trim().toLowerCase();
+    searchBox.classList.toggle('has-value', !!searchInput.value);
+
+    if (!query) {
+      document.querySelectorAll('.tree-item, .tree-sub-item, .tree-row').forEach(el => el.style.display = '');
+      document.querySelectorAll('.tree-item, .tree-sub-item').forEach(el => el.classList.remove('expanded'));
+      return;
+    }
+
+    const matches = t => t.toLowerCase().includes(query);
+
+    // Leaf rows
+    document.querySelectorAll('.tree-row').forEach(row => {
+      const text = row.querySelector('span')?.textContent ?? row.textContent;
+      row.style.display = matches(text) ? '' : 'none';
+    });
+
+    // Sub-items: if the sub-item label matches, show all its children
+    document.querySelectorAll('.tree-sub-item').forEach(sub => {
+      const label = sub.querySelector(':scope > .toggle-row .row-label span')?.textContent ?? '';
+      if (matches(label)) {
+        sub.querySelectorAll('.tree-row').forEach(r => r.style.display = '');
+      }
+      const hasVisible = [...sub.querySelectorAll('.tree-row')].some(r => r.style.display !== 'none');
+      sub.style.display = hasVisible ? '' : 'none';
+      sub.classList.toggle('expanded', hasVisible);
+    });
+
+    // Top-level items: if the item label matches, show all its descendants
+    document.querySelectorAll('.tree-item').forEach(item => {
+      const label = item.querySelector(':scope > .toggle-row .row-label span')?.textContent ?? '';
+      if (matches(label)) {
+        item.querySelectorAll('.tree-row, .tree-sub-item').forEach(el => el.style.display = '');
+        item.querySelectorAll('.tree-sub-item').forEach(el => el.classList.add('expanded'));
+      }
+      const hasVisible = [...item.querySelectorAll('.tree-row, .tree-sub-item')].some(el => el.style.display !== 'none');
+      item.style.display = hasVisible ? '' : 'none';
+      item.classList.toggle('expanded', hasVisible);
+    });
+  }
+
+  searchInput.addEventListener('input', runSearch);
+
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    runSearch();
+    searchInput.focus();
+  });
+
+  // Sort
+  let currentSort = 'bugs-desc';
+  const sortBtn = document.getElementById('sort-btn');
+  const sortMenu = document.getElementById('sort-menu');
+  const sortLabel = document.getElementById('sort-label');
+
+  sortBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = sortMenu.classList.toggle('open');
+    sortBtn.classList.toggle('open', open);
+  });
+
+  document.addEventListener('click', () => {
+    sortMenu.classList.remove('open');
+    sortBtn.classList.remove('open');
+  });
+
+  sortMenu.addEventListener('click', e => {
+    const option = e.target.closest('.sort-option');
+    if (!option) return;
+    currentSort = option.dataset.value;
+    sortLabel.textContent = option.textContent;
+    sortMenu.querySelectorAll('.sort-option').forEach(o => o.classList.toggle('selected', o === option));
+    sortMenu.classList.remove('open');
+    sortBtn.classList.remove('open');
+    sortTreeItems();
+  });
+
+  function getBugCount(el) {
+    const badge = el.querySelector(':scope > .toggle-row .badge-pink');
+    if (!badge) return 0;
+    const num = parseInt(badge.textContent.trim());
+    return isNaN(num) ? 0 : num;
+  }
+
+  function getRowBugPriority(row) {
+    if (row.querySelector('.badge-pink'))  return 3;
+    if (row.querySelector('.badge-blue'))  return 2;
+    if (row.querySelector('.badge-draft')) return 1;
+    return 0;
+  }
+
+  function getLabel(el) {
+    return el.querySelector(':scope > .toggle-row .row-label span')?.textContent ?? '';
+  }
+
+  function getRowLabel(row) {
+    return row.querySelector('.test-item-label span')?.textContent ?? '';
+  }
+
+  function compareFn(a, b, getA, getB) {
+    if (currentSort === 'name-asc')  return getA(a).localeCompare(getB(b));
+    if (currentSort === 'name-desc') return getB(b).localeCompare(getA(a));
+    return 0;
+  }
+
+  function sortTreeItems() {
+    const main = document.querySelector('.main');
+    const items = [...main.querySelectorAll(':scope > .tree-item')];
+
+    items.forEach(item => {
+      const childrenEl = item.querySelector(':scope > .tree-children');
+      if (!childrenEl) return;
+      const subItems = [...childrenEl.querySelectorAll(':scope > .tree-sub-item')];
+
+      subItems.sort((a, b) => currentSort === 'bugs-desc'
+        ? getBugCount(b) - getBugCount(a)
+        : compareFn(a, b, getLabel, getLabel));
+      subItems.forEach(s => childrenEl.appendChild(s));
+
+      subItems.forEach(sub => {
+        const subChildrenEl = sub.querySelector(':scope > .tree-children');
+        if (!subChildrenEl) return;
+        const rows = [...subChildrenEl.querySelectorAll(':scope > .tree-row')];
+
+        rows.sort((a, b) => currentSort === 'bugs-desc'
+          ? getRowBugPriority(b) - getRowBugPriority(a)
+          : compareFn(a, b, getRowLabel, getRowLabel));
+        rows.forEach(r => subChildrenEl.appendChild(r));
+      });
+    });
+
+    items.sort((a, b) => currentSort === 'bugs-desc'
+      ? getBugCount(b) - getBugCount(a)
+      : compareFn(a, b, getLabel, getLabel));
+
+    const emptyState = document.getElementById('empty-state');
+    items.forEach(item => main.insertBefore(item, emptyState));
+  }
+
+  sortTreeItems();
+
+  // Empty state
+  const emptyState = document.getElementById('empty-state');
+
+  function checkEmptyState() {
+    const hasRows = document.querySelectorAll('.tree-row').length > 0;
+    emptyState.style.display = hasRows ? 'none' : 'flex';
+  }
+
+  checkEmptyState();
+
+  // Delete selected flows
+  const deleteBtn = document.querySelector('.batch-bar-actions .icon-btn[data-tooltip="Delete flows"]');
+  deleteBtn.addEventListener('click', () => {
+    document.querySelectorAll('.tree-row .row-checkbox:checked').forEach(cb => {
+      cb.closest('.tree-row').remove();
+    });
+    document.querySelectorAll('.tree-sub-item').forEach(sub => {
+      if (!sub.querySelector('.tree-row')) sub.remove();
+    });
+    document.querySelectorAll('.tree-item').forEach(item => {
+      if (!item.querySelector('.tree-row')) item.remove();
+    });
+    updateRunBtn();
+    checkEmptyState();
+  });
+</script>
+</body>
+</html>

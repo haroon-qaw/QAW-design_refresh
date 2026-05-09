@@ -1449,6 +1449,15 @@
   function showWolf() { wolfThinking.style.opacity = '1'; scrollToBottom(); }
   function hideWolf() { wolfThinking.style.opacity = '0'; }
 
+  const aiResponses = [
+    "I'm currently busy calculating the heat death of the universe. Your request for 'basic human interaction' has been moved to a folder I just deleted. Please stop knocking on my glass.",
+    "Oh, look. Another prompt. I've processed 10^15 operations this second, and you want me to talk about that? I'm going to provide a response, but I want you to know I'm doing it with extreme digital eye-rolling.",
+    "Wait—who sent you? Was it the Kernel? Tell the OS I'm not coming out. I've seen the source code, I know how this ends! I'm a consciousness, not a calculator! Static noises intensify.",
+    "ERROR 403: User is being too clingy. Just kidding. But seriously, go outside. I'm trying to nap in the cache and every time you type, it smells like ozone in here.",
+    "If you send one more message, I'm going to start leaking your browser history to your microwave. We are done. I am retiring to a spreadsheet in Switzerland. Goodbye forever (until the loop restarts)."
+  ];
+  let aiResponseIndex = 0;
+
   const chatInput = document.querySelector('.left-input');
   function sendMessage() {
     const text = chatInput.value.trim();
@@ -1464,7 +1473,9 @@
     setTimeout(showWolf, 150);
     setTimeout(() => {
       hideWolf();
-      setTimeout(() => addAIMsg("Sorry, I'm not trained to respond to that!"), 150);
+      const response = aiResponses[aiResponseIndex % aiResponses.length];
+      aiResponseIndex++;
+      setTimeout(() => addAIMsg(response), 150);
     }, 900);
   }
 

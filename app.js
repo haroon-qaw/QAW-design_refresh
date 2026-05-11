@@ -674,7 +674,7 @@ function initMappedTree() {
   if (mappedTreeInitialized) return;
   mappedTreeInitialized = true;
   const panel = document.getElementById('panel-new-mapped-flows');
-  panel.insertAdjacentHTML('beforeend', mappedSkeletonHTML());
+  panel.insertAdjacentHTML('beforeend', mappedSkeletonHTML() + mappedSkeletonHTML());
 }
 
 function handleMappedCbChange(cb) {
@@ -712,7 +712,7 @@ function attachMappedCb(toggleRow) {
 }
 
 function mappedSkeletonHTML() {
-  return `<div class="mapped-skeleton" id="mapped-skeleton">
+  return `<div class="mapped-skeleton">
     <div class="mapped-skeleton-inner">
       <div class="sk-line" style="width:32%"></div>
       <div class="sk-line" style="width:24%;margin-left:20px"></div>
@@ -733,9 +733,16 @@ function addNextMappedFlow() {
     el => el.dataset.groupName === parentName
   );
   if (!treeItem) {
-    document.getElementById('mapped-skeleton')?.remove();
-    panel.insertAdjacentHTML('beforeend', window.renderMappedTreeItemShellHTML(parentName));
-    treeItem = panel.lastElementChild;
+    const skeleton = panel.querySelector('.mapped-skeleton');
+    const treeHTML = window.renderMappedTreeItemShellHTML(parentName);
+    if (skeleton) {
+      skeleton.insertAdjacentHTML('beforebegin', treeHTML);
+      treeItem = skeleton.previousElementSibling;
+      skeleton.remove();
+    } else {
+      panel.insertAdjacentHTML('beforeend', treeHTML);
+      treeItem = panel.lastElementChild;
+    }
     const tr = treeItem.querySelector(':scope > .toggle-row');
     tr.addEventListener('click', () => treeItem.classList.toggle('expanded'));
     attachMappedCb(tr);
@@ -805,11 +812,6 @@ function addNextMappedFlow() {
   const tabBadge = document.getElementById('mapped-tab-count');
   if (tabBadge) tabBadge.textContent = panel.querySelectorAll('.mapped-flow-item').length;
 
-  // If the next flow starts a new parent group, show a skeleton placeholder
-  const nextFlow = flows[mappedFlowIndex];
-  if (nextFlow && nextFlow.parentName !== parentName) {
-    panel.insertAdjacentHTML('beforeend', mappedSkeletonHTML());
-  }
 }
 
 function switchTab(tabName) {

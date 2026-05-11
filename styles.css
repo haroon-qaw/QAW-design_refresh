@@ -992,8 +992,8 @@ html, body { height: 100%; }
 .mapped-skeleton {
   border-radius: 8px;
   padding: 1px;
-  background: conic-gradient(from var(--sk-angle), #EBEEF7 70%, #b0badb 80%, #EBEEF7 90%);
-  animation: sk-rotate 2s linear infinite;
+  background: conic-gradient(from var(--border-angle), transparent 0deg, #3B3BEF 30deg, #4DFFDE 80deg, #FFB8F5 120deg, #D7FF33 170deg, #3B3BEF 200deg, transparent 220deg);
+  animation: rotateBorder 3s linear infinite;
 }
 
 .mapped-skeleton-inner {
@@ -1009,6 +1009,12 @@ html, body { height: 100%; }
   height: 10px;
   background: #EBEEF7;
   border-radius: 4px;
+  animation: sk-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes sk-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 /* ── Mapped flow item (expandable leaf row) ── */

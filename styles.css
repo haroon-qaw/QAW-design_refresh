@@ -776,7 +776,8 @@ html, body { height: 100%; }
   aspect-ratio: 16 / 9;
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  overflow: hidden;
+  transition: opacity 0.4s ease, height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease, margin-bottom 0.4s ease;
 }
 .playground-status {
   display: flex;
@@ -814,6 +815,12 @@ html, body { height: 100%; }
   background: #060B1E;
   border-radius: 6px;
   overflow: hidden;
+}
+.browser-inner > iframe {
+  transition: opacity 0.3s ease;
+}
+#playground-block.connecting .browser-inner > iframe {
+  opacity: 0;
 }
 
 /* ── Chat messages ── */

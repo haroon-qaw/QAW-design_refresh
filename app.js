@@ -50,28 +50,37 @@ const wolfThinking = document.getElementById('wolf-thinking');
 
 function startPlaygroundProgress() {
   flowsMappedCount.textContent = '0';
-  // 10 flows complete over 30s — one per 3s slot at a random offset.
+  // 10 flows complete over 15s — one per 1.5s slot at a random offset.
   const flowCount = 10;
-  const slotMs = 30000 / flowCount;
+  const slotMs = 15000 / flowCount;
   for (let i = 0; i < flowCount; i++) {
-    const min = i * slotMs + 300;
-    const max = (i + 1) * slotMs - 300;
+    const min = i * slotMs + 200;
+    const max = (i + 1) * slotMs - 200;
     const t = min + Math.random() * (max - min);
     setTimeout(() => {
       flowsMappedCount.textContent = String(i + 1);
     }, t);
   }
-  // Elapsed timer 0s → 30s, synced with the video.
+  // Elapsed timer 0s → 15s, synced with the video.
   let elapsed = 0;
   playgroundTimer.textContent = elapsed + 's';
   const tick = setInterval(() => {
     elapsed++;
     playgroundTimer.textContent = elapsed + 's';
-    if (elapsed >= 30) {
+    if (elapsed >= 15) {
       clearInterval(tick);
-      // Fade out the video and the thinking wolf — mapping is done.
+      // Squish-and-fade: lock the current height, clear aspect-ratio, then
+      // transition height + opacity to 0 so siblings flow up smoothly.
+      const startHeight = browserPlaceholder.offsetHeight;
+      browserPlaceholder.style.aspectRatio = 'auto';
+      browserPlaceholder.style.height = startHeight + 'px';
+      void browserPlaceholder.offsetHeight;
       browserPlaceholder.classList.remove('shown');
+      browserPlaceholder.style.height = '0px';
       hideWolf();
+      if (playgroundStartedMsg) {
+        playgroundStartedMsg.textContent = window.MAP_FLOWS_SCRIPT.completedReply;
+      }
       setTimeout(() => browserPlaceholder.remove(), 400);
     }
   }, 1000);
@@ -94,6 +103,7 @@ function addAIMsg(text) {
   el.textContent = text;
   chatMessages.appendChild(el);
   scrollToBottom();
+  return el;
 }
 function showWolf() { wolfThinking.style.opacity = '1'; scrollToBottom(); }
 function hideWolf() { wolfThinking.style.opacity = '0'; }
@@ -125,6 +135,7 @@ chatInput.addEventListener('keydown', e => {
 });
 
 let mapFlowsActive = false;
+let playgroundStartedMsg = null;
 mapNewFlowsBtn.addEventListener('click', () => {
   if (mapFlowsActive) return;
   mapFlowsActive = true;
@@ -157,26 +168,35 @@ mapNewFlowsBtn.addEventListener('click', () => {
   // 4. Wolf appears again
   setTimeout(showWolf, 1300);
 
-  // 5. Playground (video + status strip) + sidebar expand
+  // 5. Playground container appears in connecting state (rainbow on, iframe hidden) + sidebar expand
   setTimeout(() => {
     hideWolf();
     chatMessages.appendChild(playgroundBlock);
+    playgroundBlock.classList.add('connecting');
     playgroundBlock.style.display = 'flex';
     requestAnimationFrame(() => requestAnimationFrame(() => {
       browserPlaceholder.classList.add('shown');
     }));
-    startPlaygroundProgress();
     leftPanel.classList.remove('closed');
     leftPanelContent.style.width = maxWidth + 'px';
     leftPanel.style.width = (48 + maxWidth) + 'px';
     updateSidebarVar();
   }, 2000);
 
-  // 6. Final AI message + keep wolf visible
+  // 6. Connecting AI message + keep wolf visible
   setTimeout(() => {
-    addAIMsg(window.MAP_FLOWS_SCRIPT.finalReply);
+    playgroundStartedMsg = addAIMsg(window.MAP_FLOWS_SCRIPT.connectingReply);
     setTimeout(showWolf, 200);
   }, 2600);
+
+  // 7. After 2s of connecting, reveal the video, swap the message, and begin mapping
+  setTimeout(() => {
+    playgroundBlock.classList.remove('connecting');
+    if (playgroundStartedMsg) {
+      playgroundStartedMsg.textContent = window.MAP_FLOWS_SCRIPT.finalReply;
+    }
+    startPlaygroundProgress();
+  }, 4600);
 });
 
 const runBtn = document.querySelector('.btn-outline');

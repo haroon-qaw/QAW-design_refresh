@@ -16,7 +16,9 @@ window.FALLBACK_RESPONSES = [
 window.MAP_FLOWS_SCRIPT = {
   userMessage: 'Map new flows',
   firstReply: 'Can do, let me start up a playground.',
+  connectingReply: 'Playground connecting...',
   finalReply: "Playground started, I'm gettin' to work mappin'",
+  completedReply: 'Playground closed. Mapping complete.',
 };
 
 // pickFallback: simple round-robin so consecutive messages don't repeat.

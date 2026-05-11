@@ -213,6 +213,202 @@ function renderTreeItem(item) {
     </div>`;
 }
 
+// ── Mapped flows data ─────────────────────────────────────────────────────
+window.MAPPED_FLOWS_DATA = [
+  {
+    name: 'Royal Perks',
+    groups: [
+      {
+        name: 'Crown Points',
+        tests: [
+          {
+            label: 'Applies double Crown Points during BK promotional period',
+            arrange: 'Sign in to a Royal Perks account and ensure a double-points promotion is active.',
+            act: 'Add a Whopper combo to the cart and complete checkout.',
+            assert: 'Crown Points balance reflects double points for the qualifying purchase.',
+          },
+          {
+            label: 'Prevents Crown Points accrual on already-discounted items',
+            arrange: 'Sign in to a Royal Perks account and add a BOGO-discounted item to the cart.',
+            act: 'Complete checkout with the discounted item and no other items.',
+            assert: 'No Crown Points are awarded and the points balance remains unchanged.',
+          },
+        ],
+      },
+      {
+        name: 'Reward Redemption',
+        tests: [
+          {
+            label: 'Blocks free Whopper redemption below minimum cart threshold',
+            arrange: 'Sign in to a Royal Perks account with a free Whopper reward available.',
+            act: 'Attempt to redeem the reward with an empty cart.',
+            assert: 'Redemption is blocked and a minimum order requirement message is shown.',
+          },
+          {
+            label: 'Shows expiry warning 7 days before reward deadline',
+            arrange: 'Sign in to a Royal Perks account with a reward expiring in 6 days.',
+            act: 'Open the Rewards tab in the app.',
+            assert: 'A yellow expiry warning badge is displayed on the qualifying reward card.',
+          },
+        ],
+      },
+      {
+        name: 'Streak Rewards',
+        tests: [
+          {
+            label: 'Awards streak bonus after 5 consecutive weekly purchases',
+            arrange: 'Sign in to a Royal Perks account with a 4-week active purchase streak.',
+            act: 'Complete a qualifying purchase to trigger the 5th consecutive week.',
+            assert: 'A streak bonus of 250 Crown Points is credited and a celebration animation plays.',
+          },
+          {
+            label: 'Resets weekly streak counter when no qualifying purchase is made',
+            arrange: 'Sign in to a Royal Perks account with a 3-week active purchase streak.',
+            act: 'Allow one full calendar week to pass without making any qualifying purchase.',
+            assert: 'The streak counter resets to zero and the streak progress indicator clears.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'Promotions',
+    groups: [
+      {
+        name: 'Coupon Codes',
+        tests: [
+          {
+            label: 'Rejects expired BK coupon codes at checkout',
+            arrange: 'Add a Crispy Chicken Sandwich to the cart and navigate to checkout.',
+            act: 'Enter an expired promo code in the coupon field and tap Apply.',
+            assert: 'An inline error reads "This offer has expired" and no discount is applied.',
+          },
+          {
+            label: 'Prevents stacking multiple single-use coupon codes',
+            arrange: 'Apply a valid single-use coupon code and verify the discount appears.',
+            act: 'Enter a second single-use coupon code in the promo field and tap Apply.',
+            assert: 'The second code is rejected with a message that only one offer can be applied.',
+          },
+        ],
+      },
+      {
+        name: 'Limited Time Offers',
+        tests: [
+          {
+            label: 'Hides LTO menu items after campaign end date passes',
+            arrange: 'Set the system date to one day after the LTO campaign end date.',
+            act: 'Open the BK app and navigate to the full menu.',
+            assert: 'The limited-time item no longer appears in any menu category or search results.',
+          },
+          {
+            label: 'Surfaces active LTO on home screen during promotion window',
+            arrange: 'Set the system date to within the active LTO campaign window.',
+            act: 'Launch the BK app and land on the home screen.',
+            assert: 'The LTO banner is displayed in the featured items carousel above the fold.',
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const SVG_TRASH = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+const SVG_SAVE_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>';
+
+function renderRowActions() {
+  return `<div class="row-actions">
+    <button class="icon-btn row-action-discard" data-tooltip="Discard">${SVG_TRASH}</button>
+    <button class="icon-btn row-action-save" data-tooltip="Save">${SVG_SAVE_ICON}</button>
+  </div>`;
+}
+
+function renderMappedFlowItem(test) {
+  return `
+    <div class="mapped-flow-item">
+      <div class="toggle-row">
+        <div class="row-label">
+          ${SVG.chevron}
+          <span class="flow-label">${escapeText(test.label)}</span>
+        </div>
+        ${renderRowActions()}
+      </div>
+      <div class="tree-children">
+        <div class="flow-aaa-line"><span class="aaa-prefix">Arrange:</span> ${escapeText(test.arrange)}</div>
+        <div class="flow-aaa-line"><span class="aaa-prefix">Act:</span> ${escapeText(test.act)}</div>
+        <div class="flow-aaa-line"><span class="aaa-prefix">Assert:</span> ${escapeText(test.assert)}</div>
+      </div>
+    </div>`;
+}
+
+function renderMappedSubItem(group) {
+  const rows = group.tests.map(renderMappedFlowItem).join('');
+  return `
+    <div class="tree-sub-item">
+      <div class="toggle-row">
+        <div class="row-label">
+          ${SVG.chevron}
+          <span>${escapeText(group.name)}</span>
+        </div>
+        ${renderRowActions()}
+      </div>
+      <div class="tree-children">${rows}</div>
+    </div>`;
+}
+
+function renderMappedTreeItem(item) {
+  const subItems = item.groups.map(renderMappedSubItem).join('');
+  return `
+    <div class="tree-item">
+      <div class="toggle-row">
+        <div class="row-label">
+          ${SVG.chevron}
+          <span>${escapeText(item.name)}</span>
+        </div>
+        ${renderRowActions()}
+      </div>
+      <div class="tree-children">${subItems}</div>
+    </div>`;
+}
+
+window.SVG_TREE = SVG;
+
+window.renderMappedTree = function renderMappedTree(data, container) {
+  const html = data.map(renderMappedTreeItem).join('');
+  container.insertAdjacentHTML('beforeend', html);
+};
+
+// Flat ordered list of all mapped flows for incremental rendering
+window.MAPPED_FLOWS_FLAT = [];
+window.MAPPED_FLOWS_DATA.forEach(item => {
+  item.groups.forEach(group => {
+    group.tests.forEach(test => {
+      window.MAPPED_FLOWS_FLAT.push({ parentName: item.name, subName: group.name, test });
+    });
+  });
+});
+
+window.renderMappedFlowItemHTML = renderMappedFlowItem;
+
+window.renderMappedSubItemShellHTML = function(subName) {
+  return `<div class="tree-sub-item expanded" data-group-name="${escapeText(subName)}">
+    <div class="toggle-row">
+      <div class="row-label">${SVG.chevron}<span>${escapeText(subName)}</span></div>
+      ${renderRowActions()}
+    </div>
+    <div class="tree-children"></div>
+  </div>`;
+};
+
+window.renderMappedTreeItemShellHTML = function(parentName) {
+  return `<div class="tree-item expanded" data-group-name="${escapeText(parentName)}">
+    <div class="toggle-row">
+      <div class="row-label">${SVG.chevron}<span>${escapeText(parentName)}</span></div>
+      ${renderRowActions()}
+    </div>
+    <div class="tree-children"></div>
+  </div>`;
+};
+
 window.renderTree = function renderTree(data, container, emptyStateEl) {
   const html = data.map(renderTreeItem).join('');
   // Insert before the empty-state element so it stays at the bottom of <main>.

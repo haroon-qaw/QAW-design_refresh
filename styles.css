@@ -880,3 +880,164 @@ html, body { height: 100%; }
   line-height: 20px;
   color: #000;
 }
+
+/* ── Main tabs ── */
+.main-tabs {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.main-tab {
+  padding: 0 0 4px 0;
+  font-family: "Inter Tight", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #000;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.main-tab:hover:not(.active) { color: #3B3BEF; }
+
+.main-tab.active {
+  color: #3B3BEF;
+  border-bottom-color: #3B3BEF;
+}
+
+.main-tabs.single .main-tab {
+  color: #000;
+  border-bottom-color: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+.tab-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #EBEBEB;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+/* ── Tab panels ── */
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Row actions (discard + save icons) ── */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.toggle-row:hover .row-actions,
+.mapped-flow-item > .toggle-row:hover .row-actions { opacity: 1; }
+
+/* ── Mapped skeleton loader ── */
+@property --sk-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes sk-rotate {
+  to { --sk-angle: 360deg; }
+}
+
+.mapped-skeleton {
+  border-radius: 8px;
+  padding: 1px;
+  background: conic-gradient(from var(--sk-angle), #EBEEF7 70%, #b0badb 80%, #EBEEF7 90%);
+  animation: sk-rotate 2s linear infinite;
+}
+
+.mapped-skeleton-inner {
+  background: #fff;
+  border-radius: 7px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sk-line {
+  height: 10px;
+  background: #EBEEF7;
+  border-radius: 4px;
+}
+
+/* ── Mapped flow item (expandable leaf row) ── */
+.mapped-flow-item > .toggle-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 8px 8px 8px 68px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid #EBEEF7;
+}
+
+.mapped-flow-item:hover > .toggle-row,
+.mapped-flow-item:hover > .tree-children { background: #fafbff; }
+
+.mapped-flow-item:last-child:not(.expanded) > .toggle-row { border-bottom: none; }
+
+.mapped-flow-item > .toggle-row .row-label span {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.mapped-flow-item > .tree-children { display: none; }
+.mapped-flow-item.expanded > .tree-children { display: block; }
+
+.mapped-flow-item.expanded > .toggle-row {
+  border-bottom: none;
+}
+
+.mapped-flow-item.expanded > .tree-children {
+  border-bottom: 1px solid #EBEEF7;
+}
+
+.mapped-flow-item:last-child.expanded > .tree-children { border-bottom: none; }
+
+.mapped-flow-item.expanded > .toggle-row .chevron { transform: rotate(90deg); }
+
+/* ── Arrange / Act / Assert lines ── */
+.flow-aaa-line {
+  padding: 6px 8px 6px 92px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #444;
+}
+
+.aaa-prefix {
+  font-weight: 500;
+  color: #000;
+}
+
+/* ── Batch bar: mapped tab overrides ── */
+.batch-bar.tab-mapped #batch-actions-all,
+.batch-bar.tab-mapped #batch-run-btn { display: none !important; }
+
+#batch-actions-mapped-group { display: none; }
+.batch-bar.tab-mapped #batch-actions-mapped-group { display: flex; gap: 8px; }
+

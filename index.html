@@ -158,6 +158,15 @@
   <div class="main-wrap">
   <main class="main">
 
+    <!-- Tabs -->
+    <div class="main-tabs single" id="main-tabs">
+      <button class="main-tab active" data-tab="all-flows">All flows</button>
+      <button class="main-tab" data-tab="new-mapped-flows" style="display:none">New mapped flows <span class="tab-count-badge" id="mapped-tab-count"></span></button>
+    </div>
+
+    <!-- Panel: All flows -->
+    <div id="panel-all-flows" class="tab-panel">
+
     <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
@@ -206,14 +215,14 @@
         </div>
       </div>
       <div class="toolbar-right">
-        <button class="btn btn-outline">Run all flows</button>
-        <button class="btn btn-primary">Map new flows</button>
+        <button class="btn btn-outline" id="run-all-flows-btn">Run all flows</button>
+        <button class="btn btn-primary" id="map-new-flows-btn">Map new flows</button>
       </div>
     </div>
 
     <!-- Tree items are injected here by data/tree.js -->
 
-    <!-- Empty state -->
+    <!-- Empty state (inside all-flows panel) -->
     <div class="empty-state" id="empty-state">
       <svg width="147" height="168" viewBox="0 0 266 305" fill="none" xmlns="http://www.w3.org/2000/svg">
         <mask id="_pway3g0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="108" y="95" width="54" height="13"><path d="M108.37 95.012H161.255C161.255 95.012 156.715 107.974 136.277 107.974C115.838 107.974 108.377 95.012 108.377 95.012H108.37Z" fill="#fff"/></mask>
@@ -251,6 +260,33 @@
       <span class="empty-state-label">Map your app</span>
     </div>
 
+    </div><!-- /#panel-all-flows -->
+
+    <!-- Panel: New mapped flows -->
+    <div id="panel-new-mapped-flows" class="tab-panel" style="display:none">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+            <input id="mapped-search-input" type="text" placeholder="Search…" autocomplete="off" />
+            <button class="search-clear" id="mapped-search-clear" tabindex="-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+          <div class="toolbar-icons">
+            <button id="mapped-expand-btn" class="icon-btn" data-tooltip="Expand groups">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h8"/><path d="M3 12h8"/><path d="M3 19h8"/><path d="m15 8 3-3 3 3"/><path d="m15 16 3 3 3-3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-outline" id="discard-all-mapped-btn">Discard all flows</button>
+          <button class="btn btn-primary" id="save-all-mapped-btn">Save all flows</button>
+        </div>
+      </div>
+      <!-- Mapped tree items injected here by JS -->
+    </div><!-- /#panel-new-mapped-flows -->
+
   </main>
   </div><!-- /.main-wrap -->
   </div><!-- /.body-row -->
@@ -262,7 +298,8 @@
     <span id="batch-count"></span>
     <button class="batch-deselect-btn" id="batch-deselect">deselect</button>
   </div>
-  <div class="batch-bar-actions">
+  <!-- All-flows batch actions -->
+  <div class="batch-bar-actions" id="batch-actions-all">
     <button class="icon-btn" data-tooltip="Delete flows">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
     </button>
@@ -274,6 +311,11 @@
     </button>
   </div>
   <button class="btn btn-outline" id="batch-run-btn">Run flows</button>
+  <!-- Mapped-flows batch actions (hidden by default) -->
+  <div class="batch-bar-mapped-actions" id="batch-actions-mapped-group">
+    <button class="btn btn-outline" id="batch-discard-selected-btn">Discard flows</button>
+    <button class="btn btn-primary" id="batch-save-selected-btn">Save flows</button>
+  </div>
 </div>
 
 <div id="tooltip"></div>

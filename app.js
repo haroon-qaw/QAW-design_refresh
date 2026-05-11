@@ -41,6 +41,15 @@ function updateAncestors(startEl) {
   });
 }
 
+document.getElementById('playground-status').addEventListener('click', () => {
+  const statusEl = document.getElementById('playground-status');
+  if (!statusEl.classList.contains('expandable')) return;
+  const flowList = document.getElementById('mapped-flow-list');
+  const expanded = statusEl.classList.toggle('expanded');
+  flowList.classList.toggle('open', expanded);
+  if (expanded) flowList.scrollTop = flowList.scrollHeight;
+});
+
 const mapNewFlowsBtn = document.getElementById('map-new-flows-btn');
 const browserPlaceholder = document.getElementById('browser-placeholder');
 const playgroundBlock = document.getElementById('playground-block');
@@ -85,6 +94,7 @@ function startPlaygroundProgress() {
       }
       setTimeout(() => {
         browserPlaceholder.remove();
+        playgroundBlock.style.position = 'static';
         if (preMappingPanelWidth) {
           leftPanelContent.style.width = preMappingContentWidth;
           leftPanel.style.width = preMappingPanelWidth;
@@ -771,6 +781,24 @@ function addNextMappedFlow() {
       e.stopPropagation();
       saveFlowsToAllFlows([flowItem]);
     });
+  }
+
+  // Populate sidebar flow list
+  const flowList = document.getElementById('mapped-flow-list');
+  const statusEl = document.getElementById('playground-status');
+  if (flowList && statusEl) {
+    const item = document.createElement('div');
+    item.className = 'mapped-flow-list-item';
+    const label = `${parentName} / ${subName} / ${test.label}`;
+    item.textContent = label;
+    item.title = label;
+    flowList.appendChild(item);
+    if (!statusEl.classList.contains('expandable')) {
+      statusEl.classList.add('expandable');
+    }
+    if (flowList.classList.contains('open')) {
+      flowList.scrollTop = flowList.scrollHeight;
+    }
   }
 
   // Update tab count badge

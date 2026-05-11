@@ -806,6 +806,35 @@ html, body { height: 100%; }
   color: #92A1CF;
   flex-shrink: 0;
 }
+
+.playground-status.expandable { cursor: pointer; user-select: none; }
+.playground-status.expandable .playground-status-label svg { transition: transform 0.2s; }
+.playground-status.expanded .playground-status-label svg { transform: rotate(90deg); }
+.playground-status.expanded { border-radius: 4px 4px 0 0; }
+
+.mapped-flow-list {
+  display: none;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #D4DDF7;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.mapped-flow-list.open { display: flex; }
+.mapped-flow-list-item {
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid #EBEEF7;
+  flex-shrink: 0;
+}
+.mapped-flow-list-item:last-child { border-bottom: none; }
 #browser-placeholder.shown {
   opacity: 1;
   padding: 3px;

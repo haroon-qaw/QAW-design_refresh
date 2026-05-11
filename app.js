@@ -249,7 +249,9 @@ const sidebarToggle = document.getElementById('sidebar-toggle');
 const leftPanel = document.querySelector('.left-panel');
 
 function updateSidebarVar() {
-  document.documentElement.style.setProperty('--sidebar-width', leftPanel.offsetWidth + 'px');
+  const w = leftPanel.offsetWidth;
+  document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+  batchBar.style.left = w + 'px';
 }
 updateSidebarVar();
 
@@ -266,10 +268,13 @@ sidebarToggle.addEventListener('click', () => {
     leftPanel.style.width = '';
     content.style.width = '';
     document.documentElement.style.setProperty('--sidebar-width', '48px');
+    batchBar.style.left = '48px';
   } else {
     if (savedPanelWidth) leftPanel.style.width = savedPanelWidth;
     if (savedContentWidth) content.style.width = savedContentWidth;
-    document.documentElement.style.setProperty('--sidebar-width', savedPanelWidth || '448px');
+    const openWidth = savedPanelWidth || '448px';
+    document.documentElement.style.setProperty('--sidebar-width', openWidth);
+    batchBar.style.left = openWidth;
   }
   leftPanel.classList.toggle('closed', closing);
   sidebarToggle.querySelector('svg').innerHTML = closing ? openSvg : closeSvg;

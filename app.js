@@ -213,6 +213,7 @@ function updateRunBtn() {
   batchCount.textContent = `${count} flow${s} selected`;
   batchRunBtn.textContent = `Run ${count} flow${s}`;
   if (count > 0) {
+    batchBar.style.left = leftPanel.offsetWidth + 'px';
     batchBar.classList.remove('hiding');
     batchBar.classList.add('visible');
   } else if (batchBar.classList.contains('visible')) {

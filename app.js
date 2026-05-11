@@ -345,6 +345,7 @@ leftPanel.addEventListener('mousedown', e => {
   const startX = e.clientX;
   const startWidth = leftPanelContent.offsetWidth;
   leftPanel.style.transition = 'none';
+  batchBar.style.transition = 'none';
 
   function onMouseMove(e) {
     const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + e.clientX - startX));
@@ -354,6 +355,7 @@ leftPanel.addEventListener('mousedown', e => {
   }
   function onMouseUp() {
     leftPanel.style.transition = '';
+    batchBar.style.transition = '';
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
     document.body.style.cursor = '';

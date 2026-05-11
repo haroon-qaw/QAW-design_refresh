@@ -325,6 +325,11 @@ html, body { height: 100%; }
 }
 
 /* ── Main content ── */
+@property --sidebar-width {
+  syntax: '<length>';
+  initial-value: 448px;
+  inherits: true;
+}
 :root { --sidebar-width: 448px; }
 
 .main-wrap {

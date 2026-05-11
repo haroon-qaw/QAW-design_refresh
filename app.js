@@ -744,7 +744,20 @@ function addNextMappedFlow() {
       treeItem = panel.lastElementChild;
     }
     const tr = treeItem.querySelector(':scope > .toggle-row');
-    tr.addEventListener('click', () => treeItem.classList.toggle('expanded'));
+    tr.addEventListener('click', e => { if (!e.target.closest('.row-actions')) treeItem.classList.toggle('expanded'); });
+    tr.querySelector('.row-action-save').addEventListener('click', e => {
+      e.stopPropagation();
+      saveFlowsToAllFlows([...treeItem.querySelectorAll('.mapped-flow-item')]);
+    });
+    tr.querySelector('.row-action-discard').addEventListener('click', e => {
+      e.stopPropagation();
+      treeItem.querySelectorAll('.mapped-flow-item').forEach(f => f.remove());
+      const tabBadge = document.getElementById('mapped-tab-count');
+      if (tabBadge) tabBadge.textContent = panel.querySelectorAll('.mapped-flow-item').length;
+      treeItem.remove();
+      updateRunBtn();
+      checkMappedPanelEmpty();
+    });
     attachMappedCb(tr);
   }
 
@@ -757,7 +770,20 @@ function addNextMappedFlow() {
     treeChildren.insertAdjacentHTML('beforeend', window.renderMappedSubItemShellHTML(subName));
     subItem = treeChildren.lastElementChild;
     const tr = subItem.querySelector(':scope > .toggle-row');
-    tr.addEventListener('click', () => subItem.classList.toggle('expanded'));
+    tr.addEventListener('click', e => { if (!e.target.closest('.row-actions')) subItem.classList.toggle('expanded'); });
+    tr.querySelector('.row-action-save').addEventListener('click', e => {
+      e.stopPropagation();
+      saveFlowsToAllFlows([...subItem.querySelectorAll('.mapped-flow-item')]);
+    });
+    tr.querySelector('.row-action-discard').addEventListener('click', e => {
+      e.stopPropagation();
+      subItem.querySelectorAll('.mapped-flow-item').forEach(f => f.remove());
+      const tabBadge = document.getElementById('mapped-tab-count');
+      if (tabBadge) tabBadge.textContent = panel.querySelectorAll('.mapped-flow-item').length;
+      subItem.remove();
+      updateRunBtn();
+      checkMappedPanelEmpty();
+    });
     attachMappedCb(tr);
   }
 
@@ -980,6 +1006,16 @@ function saveFlowsToAllFlows(flowItems) {
 // Save all flows button
 document.getElementById('save-all-mapped-btn').addEventListener('click', () => {
   saveFlowsToAllFlows([...document.querySelectorAll('#panel-new-mapped-flows .mapped-flow-item')]);
+});
+
+document.getElementById('discard-all-mapped-btn').addEventListener('click', () => {
+  const panel = document.getElementById('panel-new-mapped-flows');
+  panel.querySelectorAll('.mapped-flow-item').forEach(f => f.remove());
+  panel.querySelectorAll('.tree-sub-item, .tree-item').forEach(el => el.remove());
+  const tabBadge = document.getElementById('mapped-tab-count');
+  if (tabBadge) tabBadge.textContent = '0';
+  updateRunBtn();
+  checkMappedPanelEmpty();
 });
 
 // Batch save selected

@@ -205,6 +205,12 @@ const batchBar = document.getElementById('batch-bar');
 const batchCount = document.getElementById('batch-count');
 const batchRunBtn = document.getElementById('batch-run-btn');
 const batchDeselect = document.getElementById('batch-deselect');
+const mainWrap = document.querySelector('.main-wrap');
+
+// Keep batch bar left edge flush with main-wrap regardless of sidebar width.
+new ResizeObserver(() => {
+  batchBar.style.left = mainWrap.getBoundingClientRect().left + 'px';
+}).observe(mainWrap);
 
 function updateRunBtn() {
   const count = document.querySelectorAll('.tree-row .row-checkbox:checked').length;
@@ -213,7 +219,6 @@ function updateRunBtn() {
   batchCount.textContent = `${count} flow${s} selected`;
   batchRunBtn.textContent = `Run ${count} flow${s}`;
   if (count > 0) {
-    batchBar.style.left = leftPanel.offsetWidth + 'px';
     batchBar.classList.remove('hiding');
     batchBar.classList.add('visible');
   } else if (batchBar.classList.contains('visible')) {
@@ -252,7 +257,6 @@ const leftPanel = document.querySelector('.left-panel');
 function updateSidebarVar() {
   const w = leftPanel.offsetWidth;
   document.documentElement.style.setProperty('--sidebar-width', w + 'px');
-  batchBar.style.left = w + 'px';
 }
 updateSidebarVar();
 
@@ -269,13 +273,10 @@ sidebarToggle.addEventListener('click', () => {
     leftPanel.style.width = '';
     content.style.width = '';
     document.documentElement.style.setProperty('--sidebar-width', '48px');
-    batchBar.style.left = '48px';
   } else {
     if (savedPanelWidth) leftPanel.style.width = savedPanelWidth;
     if (savedContentWidth) content.style.width = savedContentWidth;
-    const openWidth = savedPanelWidth || '448px';
-    document.documentElement.style.setProperty('--sidebar-width', openWidth);
-    batchBar.style.left = openWidth;
+    document.documentElement.style.setProperty('--sidebar-width', savedPanelWidth || '448px');
   }
   leftPanel.classList.toggle('closed', closing);
   sidebarToggle.querySelector('svg').innerHTML = closing ? openSvg : closeSvg;
@@ -351,7 +352,6 @@ leftPanel.addEventListener('mousedown', e => {
   const startX = e.clientX;
   const startWidth = leftPanelContent.offsetWidth;
   leftPanel.style.transition = 'none';
-  batchBar.style.transition = 'none';
 
   function onMouseMove(e) {
     const newWidth = Math.max(minWidth, Math.min(maxWidth, startWidth + e.clientX - startX));
@@ -361,7 +361,6 @@ leftPanel.addEventListener('mousedown', e => {
   }
   function onMouseUp() {
     leftPanel.style.transition = '';
-    batchBar.style.transition = '';
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
     document.body.style.cursor = '';

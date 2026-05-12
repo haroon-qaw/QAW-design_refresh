@@ -216,9 +216,12 @@ html, body { height: 100%; }
 }
 
 .left-chat-text {
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 18px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
   color: #000;
 }
 
@@ -231,10 +234,10 @@ html, body { height: 100%; }
   flex-direction: column;
   gap: 8px;
   align-self: stretch;
-  background: none;
+  background: #F4F8FF;
   border-radius: 4px;
-  padding: 8px;
-  border: 1px solid #FFB8F5;
+  padding: 8px 8px 16px;
+  border: 1px solid #D4DDF7;
 }
 
 .left-env-label {

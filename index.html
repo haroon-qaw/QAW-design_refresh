@@ -65,31 +65,45 @@
   <!-- ── Left panel (empty) ── -->
   <aside class="left-panel">
     <div class="recent-bar">
-      <button class="icon-btn" id="sidebar-toggle" data-tooltip="Close sidebar">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
-          <rect width="18" height="18" x="3" y="3" rx="2"/>
-          <path d="M15 3v18"/>
-          <path d="m10 15-3-3 3-3"/>
-        </svg>
-      </button>
-      <button class="recent-btn active">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
-          <path d="M7 11h10"/><path d="M7 15h6"/><path d="M7 7h8"/>
-        </svg>
-      </button>
-      <button class="recent-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
-          <path d="M7 11h10"/><path d="M7 15h6"/><path d="M7 7h8"/>
-        </svg>
-      </button>
-      <button class="recent-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
-          <path d="M7 11h10"/><path d="M7 15h6"/><path d="M7 7h8"/>
-        </svg>
-      </button>
+      <div class="recent-bar-top">
+        <button class="icon-btn" id="sidebar-toggle" data-tooltip="Close sidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="3" rx="2"/>
+            <path d="M15 3v18"/>
+            <path d="m10 15-3-3 3-3"/>
+          </svg>
+        </button>
+        <button class="recent-btn active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
+            <path d="M7 11h10"/><path d="M7 15h6"/><path d="M7 7h8"/>
+          </svg>
+        </button>
+        <button class="recent-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
+            <path d="M7 11h10"/><path d="M7 15h6"/><path d="M7 7h8"/>
+          </svg>
+        </button>
+        <button class="icon-btn" data-tooltip="New chat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="M12 5v14"/>
+          </svg>
+        </button>
+      </div>
+      <div class="recent-bar-bottom">
+        <button class="icon-btn" data-tooltip="Usage">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+          </svg>
+        </button>
+        <div class="qaw-logo">
+          <svg width="130" height="130" viewBox="0 0 130 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="130" height="130" fill="#3B3BEF"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M89.785 57.894L103.998 72.108H89.785L103.998 86.321H89.785L111.187 107.641H54.252C54.252 93.571 51.764 89.447 32.931 86.321C24.83 84.976 18.719 80.422 18.718 72.108L47.145 65.001V22.361L68.465 43.681L89.785 22.361V57.894ZM61.413 58.177C57.577 58.177 54.467 61.283 54.467 65.113C54.467 68.943 57.577 72.047 61.413 72.047C65.249 72.047 68.359 68.942 68.359 65.113C68.359 61.283 65.249 58.177 61.413 58.177Z" fill="white"/>
+          </svg>
+        </div>
+      </div>
     </div>
     <div class="left-panel-content">
       <div id="playground-block">
@@ -320,6 +334,38 @@
 </div>
 
 <div id="tooltip"></div>
+
+<div id="usage-popup" class="usage-popup" hidden>
+  <div class="usage-popup-header">
+    <span>Plan usage</span>
+    <button class="icon-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+  <div class="usage-row">
+    <div class="usage-row-labels">
+      <span class="usage-label">Flows</span>
+      <span class="usage-value">50%</span>
+    </div>
+    <div class="usage-track"><div class="usage-fill" style="width:50%;background:#7781F7"></div></div>
+  </div>
+  <div class="usage-row">
+    <div class="usage-row-labels">
+      <span class="usage-label">Runs</span>
+      <span class="usage-value">10% - resets in 23h</span>
+    </div>
+    <div class="usage-track"><div class="usage-fill" style="width:10%;background:#7781F7"></div></div>
+  </div>
+  <div class="usage-row">
+    <div class="usage-row-labels">
+      <span class="usage-label">Automations</span>
+      <span class="usage-value">90% - resets in 7d</span>
+    </div>
+    <div class="usage-track"><div class="usage-fill" style="width:90%;background:#3B3BEF"></div></div>
+  </div>
+</div>
 
 <script defer src="data/tree.js"></script>
 <script defer src="data/responses.js"></script>

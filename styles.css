@@ -134,8 +134,26 @@ html, body { height: 100%; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
   padding: 8px;
+}
+.recent-bar-top, .recent-bar-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.qaw-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.qaw-logo svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 .recent-btn {
   display: flex;
@@ -149,6 +167,8 @@ html, body { height: 100%; }
 }
 .recent-btn.active { background: #EBEEF7; }
 .recent-btn.active svg { stroke: #3B3BEF; }
+.recent-bar-bottom .icon-btn.active { background: #EBEEF7; }
+.recent-bar-bottom .icon-btn.active svg { stroke: #3B3BEF; }
 .recent-btn:not(.active):hover { background: #f4f8ff; }
 
 .left-panel { transition: width 0.2s ease; overflow: hidden; }
@@ -605,6 +625,53 @@ html, body { height: 100%; }
   transition: opacity 0.1s ease;
   z-index: 9999;
 }
+
+/* ── Usage popup ── */
+.usage-popup {
+  position: fixed;
+  width: 319px;
+  background: #fff;
+  outline: 1px solid #D4DDF7;
+  border-radius: 4px;
+  padding: 8px 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 9998;
+  font-family: 'Inter Tight', system-ui, sans-serif;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.usage-popup[hidden] { display: none; }
+.usage-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.usage-popup-header span {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #000;
+}
+.usage-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.usage-row-labels {
+  display: flex;
+  justify-content: space-between;
+}
+.usage-label { font-size: 12px; color: #000; line-height: 16px; }
+.usage-value  { font-size: 12px; color: #6C86B5; line-height: 16px; }
+.usage-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 256px;
+  background: #D9E4F8;
+  overflow: hidden;
+}
+.usage-fill { height: 100%; border-radius: 256px; }
 
 /* ── Checkboxes ── */
 .row-checkbox {

@@ -398,6 +398,41 @@ document.addEventListener('mouseout', e => {
 });
 
 
+// Usage popup
+const usagePopup = document.getElementById('usage-popup');
+const usageBtn = document.querySelector('.recent-bar-bottom .icon-btn[data-tooltip="Usage"]');
+
+function openUsagePopup() {
+  const r = usageBtn.getBoundingClientRect();
+  const popupWidth = 319;
+  const margin = 8;
+  let left = r.left;
+  let top = r.top - usagePopup.offsetHeight;
+  if (top < margin) top = margin;
+  usagePopup.style.left = left + 'px';
+  usagePopup.style.top = top + 'px';
+}
+
+usageBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  if (!usagePopup.hidden) {
+    usagePopup.hidden = true;
+    usageBtn.classList.remove('active');
+    return;
+  }
+  usagePopup.hidden = false;
+  openUsagePopup();
+  usageBtn.classList.add('active');
+  tooltip.style.opacity = '0';
+});
+
+document.addEventListener('click', e => {
+  if (!usagePopup.hidden && !usagePopup.contains(e.target)) {
+    usagePopup.hidden = true;
+    usageBtn.classList.remove('active');
+  }
+});
+
 // Sidebar resize
 const leftPanelContent = document.querySelector('.left-panel-content');
 const chatScrollArea = leftPanelContent.querySelector('.chat-scroll-area');
